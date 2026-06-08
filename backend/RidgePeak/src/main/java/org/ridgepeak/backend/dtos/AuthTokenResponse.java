@@ -1,7 +1,13 @@
 package org.ridgepeak.backend.dtos;
 
-public record AuthTokenResponse(String accessToken, String tokenType, int expiresIn) {
+import org.ridgepeak.backend.utils.JwtUtil;
+
+public record AuthTokenResponse(
+        String accessToken,
+        String tokenType,
+        long expiresIn
+) {
     public AuthTokenResponse(String accessToken) {
-        this(accessToken, "Bearer", 21600);
+        this(accessToken, "Bearer", JwtUtil.EXPIRATION);
     }
 }

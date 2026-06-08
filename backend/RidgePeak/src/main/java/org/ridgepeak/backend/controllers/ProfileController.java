@@ -1,0 +1,72 @@
+package org.ridgepeak.backend.controllers;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.ridgepeak.backend.dtos.ProfilePasswordRequest;
+import org.ridgepeak.backend.dtos.ProfilePutRequest;
+import org.ridgepeak.backend.dtos.ProfileResponse;
+import org.ridgepeak.backend.dtos.ProfilePublicResponse;
+import org.ridgepeak.backend.models.User;
+import org.ridgepeak.backend.services.ProfileService;
+import org.ridgepeak.backend.utils.Result;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@RequestMapping("/api/profile")
+public class ProfileController {
+    private final ProfileService profileService;
+
+    public ProfileController(ProfileService profileService) {
+        this.profileService = profileService;
+    }
+
+    @GetMapping("/me")
+    public Result<?> get(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        User user = profileService.findById(userId);
+        return Result.ok(new ProfileResponse(
+                userId,
+                user.getUsername(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getAvatarUrl(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getLastLoginTime()
+        ));
+    }
+
+    @PutMapping("/me")
+    public Result<?> put(HttpServletRequest request, @RequestBody @Valid ProfilePutRequest body) {
+        Long userId = (Long) request.getAttribute("userId");
+        profileService.updateProfile(userId, body);
+        return Result.ok();
+    }
+
+    @GetMapping("/{userId}")
+    public Result<?> getById(@PathVariable Long userId) {
+        User user = profileService.findById(userId);
+        return Result.ok(new ProfilePublicResponse(
+                user.getUsername(),
+                user.getNickname(),
+                user.getAvatarUrl(),
+                user.getRole()
+        ));
+    }
+
+    @PostMapping("/me/password")
+    public Result<?> changePassword(HttpServletRequest request, @RequestBody @Valid ProfilePasswordRequest body) {
+        Long userId = (Long) request.getAttribute("userId");
+        profileService.changePassword(userId, body);
+        return Result.ok();
+    }
+
+    @PostMapping("/me/avatar")
+    public Result<?> uploadAvatar(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
+        Long userId = (Long) request.getAttribute("userId");
+        String url = profileService.uploadAvatar(userId, file);
+        return Result.ok(url);
+    }
+}

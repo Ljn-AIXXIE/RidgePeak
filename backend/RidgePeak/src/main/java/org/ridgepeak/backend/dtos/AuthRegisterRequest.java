@@ -15,5 +15,5 @@ public record AuthRegisterRequest(
 
         @NotBlank
         @Email(message = "无效的电子邮件格式")
-        String email) {
-}
+        String email
+) {}

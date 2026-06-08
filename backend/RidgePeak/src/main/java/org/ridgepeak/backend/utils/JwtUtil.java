@@ -11,8 +11,8 @@ import java.util.Date;
 public class JwtUtil {
     private JwtUtil() {}
 
-    private static final String SECRET = "73EEC309-0BE7-4A58-BE29-84307F3F56CD";
-    private static final long EXPIRATION = 21600;
+    public static final String SECRET = "73EEC309-0BE7-4A58-BE29-84307F3F56CD";
+    public static final long EXPIRATION = 21600;
 
     private static final SecretKey KEY;
 

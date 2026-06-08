@@ -9,5 +9,5 @@ public record AuthLoginRequest(
         String account,
 
         @NotBlank(message = "密码不能为空")
-        String password) {
-}
+        String password
+) {}

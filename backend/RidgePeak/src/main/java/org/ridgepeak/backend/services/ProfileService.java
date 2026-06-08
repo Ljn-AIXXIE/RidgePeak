@@ -1,0 +1,88 @@
+package org.ridgepeak.backend.services;
+
+import org.mindrot.jbcrypt.BCrypt;
+import org.ridgepeak.backend.dtos.ProfilePasswordRequest;
+import org.ridgepeak.backend.dtos.ProfilePutRequest;
+import org.ridgepeak.backend.models.User;
+import org.ridgepeak.backend.repositories.UserRepository;
+import org.ridgepeak.backend.utils.BizException;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
+
+@Service
+public class ProfileService {
+    private final UserRepository userRepository;
+
+    public ProfileService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+    }
+
+    public void updateProfile(Long userId, ProfilePutRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+
+        user.setNickname(request.nickname());
+        userRepository.save(user);
+    }
+
+    public void changePassword(Long userId, ProfilePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+
+        if (!BCrypt.checkpw(request.oldPassword(), user.getPassword()))
+            throw new BizException("旧密码不正确");
+
+        if (BCrypt.checkpw(request.newPassword(), user.getPassword()))
+            throw new BizException("新密码不能与旧密码相同");
+
+        String hashed = BCrypt.hashpw(request.newPassword(), BCrypt.gensalt());
+        user.setPassword(hashed);
+        userRepository.save(user);
+    }
+
+    public String uploadAvatar(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+
+        if (file.isEmpty())
+            throw new BizException("文件为空");
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/"))
+            throw new BizException("只允许上传图片文件");
+        if (file.getSize() > 2 * 1024 * 1024)
+            throw new BizException("图片大小不能超过 2MB");
+
+        String ext = "img";
+        String originFilename = file.getOriginalFilename();
+        if (originFilename != null && originFilename.contains(".")) {
+            ext = originFilename.substring(originFilename.lastIndexOf('.') + 1);
+        }
+
+        String filename = UUID.randomUUID() + "." + ext;
+
+        try {
+            Path uploadDir = Path.of("uploads/avatars");
+            Files.createDirectories(uploadDir);
+            file.transferTo(uploadDir.resolve(filename));
+        } catch (IOException e) {
+            throw new BizException("文件上传失败");
+        }
+
+        String url = "/uploads/avatars/" + filename;
+        user.setAvatarUrl(url);
+        userRepository.save(user);
+
+        return url;
+    }
+}
