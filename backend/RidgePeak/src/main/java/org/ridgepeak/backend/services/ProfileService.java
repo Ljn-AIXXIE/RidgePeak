@@ -5,7 +5,7 @@ import org.ridgepeak.backend.dtos.ProfilePasswordRequest;
 import org.ridgepeak.backend.dtos.ProfilePutRequest;
 import org.ridgepeak.backend.models.User;
 import org.ridgepeak.backend.repositories.UserRepository;
-import org.ridgepeak.backend.utils.BizException;
+import org.ridgepeak.backend.exceptions.BizException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,12 +22,12 @@ public class ProfileService {
         this.userRepository = userRepository;
     }
 
-    public User findById(Long userId) {
+    public User find(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
     }
 
-    public void updateProfile(Long userId, ProfilePutRequest request) {
+    public void update(Long userId, ProfilePutRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
 

@@ -1,4 +1,4 @@
-package org.ridgepeak.backend.utils;
+package org.ridgepeak.backend.exceptions;
 
 public class BizException extends RuntimeException {
     public BizException(String message) {

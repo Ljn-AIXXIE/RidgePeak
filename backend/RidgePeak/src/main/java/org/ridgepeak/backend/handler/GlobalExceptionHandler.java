@@ -1,8 +1,9 @@
 package org.ridgepeak.backend.handler;
 
-import org.ridgepeak.backend.utils.BizException;
+import org.ridgepeak.backend.exceptions.BizException;
+import org.ridgepeak.backend.exceptions.ForbiddenException;
 import org.ridgepeak.backend.utils.Result;
-import org.ridgepeak.backend.utils.UnauthorizedException;
+import org.ridgepeak.backend.exceptions.UnauthorizedException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,8 +24,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public Result<Void> handleAuth(UnauthorizedException e) {
+    public Result<Void> handleUnauthorized(UnauthorizedException e) {
         return Result.unauthorized(e.getMessage());
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public Result<Void> handleForbidden(UnauthorizedException e) {
+        return Result.forbidden(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

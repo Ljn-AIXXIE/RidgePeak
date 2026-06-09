@@ -19,7 +19,8 @@ class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenAuthHandler)
                 .addPathPatterns("/api/auth/logout")
-				.addPathPatterns("/api/profile/me", "/api/profile/me/**");;
+				.addPathPatterns("/api/profile/me", "/api/profile/me/**")
+				.addPathPatterns("/api/category/create");
     }
 
 	@Override

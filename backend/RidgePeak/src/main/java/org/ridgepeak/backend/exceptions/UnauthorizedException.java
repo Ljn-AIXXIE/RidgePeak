@@ -1,4 +1,4 @@
-package org.ridgepeak.backend.utils;
+package org.ridgepeak.backend.exceptions;
 
 public class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message) {

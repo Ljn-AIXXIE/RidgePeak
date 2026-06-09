@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
 import org.ridgepeak.backend.services.AuthService;
-import org.ridgepeak.backend.utils.UnauthorizedException;
+import org.ridgepeak.backend.exceptions.UnauthorizedException;
 import org.ridgepeak.backend.utils.JwtUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;

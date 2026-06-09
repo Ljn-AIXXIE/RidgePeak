@@ -24,7 +24,7 @@ public class ProfileController {
     @GetMapping("/me")
     public Result<?> get(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        User user = profileService.findById(userId);
+        User user = profileService.find(userId);
         return Result.ok(new ProfileResponse(
                 userId,
                 user.getUsername(),
@@ -41,13 +41,13 @@ public class ProfileController {
     @PutMapping("/me")
     public Result<?> put(HttpServletRequest request, @RequestBody @Valid ProfilePutRequest body) {
         Long userId = (Long) request.getAttribute("userId");
-        profileService.updateProfile(userId, body);
+        profileService.update(userId, body);
         return Result.ok();
     }
 
     @GetMapping("/{userId}")
     public Result<?> getById(@PathVariable Long userId) {
-        User user = profileService.findById(userId);
+        User user = profileService.find(userId);
         return Result.ok(new ProfilePublicResponse(
                 user.getUsername(),
                 user.getNickname(),

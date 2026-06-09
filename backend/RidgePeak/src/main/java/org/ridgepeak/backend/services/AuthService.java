@@ -5,8 +5,8 @@ import org.ridgepeak.backend.dtos.AuthLoginRequest;
 import org.ridgepeak.backend.dtos.AuthRegisterRequest;
 import org.ridgepeak.backend.models.User;
 import org.ridgepeak.backend.repositories.UserRepository;
-import org.ridgepeak.backend.utils.UnauthorizedException;
-import org.ridgepeak.backend.utils.BizException;
+import org.ridgepeak.backend.exceptions.UnauthorizedException;
+import org.ridgepeak.backend.exceptions.BizException;
 import org.ridgepeak.backend.utils.JwtUtil;
 import org.springframework.stereotype.Service;
 
