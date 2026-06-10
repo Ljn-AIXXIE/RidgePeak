@@ -53,4 +53,11 @@ public class PostController {
         Long postId = postService.create(userId, body);
         return Result.ok(postId);
     }
+
+    @PostMapping("/{postId}/like")
+    public Result<?> like(HttpServletRequest request, @PathVariable Long postId) {
+        Long userId = (Long) request.getAttribute("userId");
+        boolean liked = postService.toggleLike(postId, userId);
+        return Result.ok(liked);
+    }
 }

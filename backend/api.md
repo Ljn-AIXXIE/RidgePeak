@@ -863,6 +863,47 @@ Authorization: Bearer <accessToken>
 
 ---
 
+## 6. 点赞 / 取消赞
+
+```
+POST /{postId}/like
+```
+
+**认证：** 需要
+
+**请求头：**
+```
+Authorization: Bearer <accessToken>
+```
+
+**路径参数：**
+
+| 参数       | 类型   | 说明     |
+|----------|------|--------|
+| `postId` | Long | 帖子 ID  |
+
+**请求体：** 无
+
+**成功响应 (200)：**
+```json
+// 点赞成功
+{ "code": 200, "message": "success", "data": true }
+
+// 已点赞 → 取消赞
+{ "code": 200, "message": "success", "data": false }
+```
+> 同一接口自动切换赞/取消赞。`data` 为 `true` 表示当前已点赞，`false` 表示已取消。
+
+**错误响应：**
+
+| code | message        |
+|------|----------------|
+| 400  | `帖子不存在`       |
+| 401  | `未登录或验证失败`    |
+| 401  | `登录已过期，请重新登录` |
+
+---
+
 # RidgePeak Comment API 文档
 
 **Base URL:** `http://localhost:8080/api/comment`

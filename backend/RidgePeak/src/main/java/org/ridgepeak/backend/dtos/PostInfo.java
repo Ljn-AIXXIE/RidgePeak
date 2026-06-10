@@ -6,6 +6,7 @@ public record PostInfo(
         String title,
         String content,
         long viewCount,
+        long likeCount,
         CategoryShortInfo category,
         ProfileSummaryInfo author,
         LocalDateTime createdAt,
