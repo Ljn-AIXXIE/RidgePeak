@@ -8,5 +8,6 @@ public record PostSummaryInfo(
         String categoryName,
         String authorName,
         long viewCount,
+        long likeCount,
         LocalDateTime createdAt
 ) {}

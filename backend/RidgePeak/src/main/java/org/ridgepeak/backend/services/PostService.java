@@ -3,11 +3,9 @@ package org.ridgepeak.backend.services;
 import org.ridgepeak.backend.dtos.*;
 import org.ridgepeak.backend.exceptions.BizException;
 import org.ridgepeak.backend.exceptions.ForbiddenException;
-import org.ridgepeak.backend.models.Category;
-import org.ridgepeak.backend.models.Post;
-import org.ridgepeak.backend.models.Role;
-import org.ridgepeak.backend.models.User;
+import org.ridgepeak.backend.models.*;
 import org.ridgepeak.backend.repositories.CategoryRepository;
+import org.ridgepeak.backend.repositories.PostLikeRepository;
 import org.ridgepeak.backend.repositories.PostRepository;
 import org.ridgepeak.backend.repositories.UserRepository;
 import org.springframework.data.domain.Page;
@@ -25,11 +23,17 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    private final PostLikeRepository postLikeRepository;
 
-    public PostService(UserRepository userRepository, PostRepository postRepository, CategoryRepository categoryRepository) {
+    public PostService(
+            UserRepository userRepository,
+            PostRepository postRepository,
+            CategoryRepository categoryRepository,
+            PostLikeRepository postLikeRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
+        this.postLikeRepository = postLikeRepository;
     }
 
     public PostSearchResponse search(String keyword, Long categoryId, String sort, int page, int size) {
@@ -63,6 +67,7 @@ public class PostService {
                         p.getCategory().getName(),
                         p.getAuthor().getUsername(),
                         p.getViewCount(),
+                        postLikeRepository.countByPost(p),
                         p.getCreatedAt()
                 ))
             .toList();
@@ -89,6 +94,7 @@ public class PostService {
                 post.getTitle(),
                 post.getContent(),
                 post.getViewCount(),
+                postLikeRepository.countByPost(post),
                 new CategoryShortInfo(
                         category.getId(),
                         category.getName()
@@ -150,5 +156,23 @@ public class PostService {
             throw new ForbiddenException("无权操作");
 
         postRepository.delete(post);
+    }
+
+    public boolean toggleLike(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BizException("帖子不存在"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+
+        if (postLikeRepository.existsByUserAndPost(user, post)) {
+            postLikeRepository.deleteByUserAndPost(user, post);
+            return false;
+        } else {
+            PostLike like = new PostLike();
+            like.setUser(user);
+            like.setPost(post);
+            postLikeRepository.save(like);
+            return true;
+        }
     }
 }
