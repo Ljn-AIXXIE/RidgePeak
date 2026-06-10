@@ -19,6 +19,13 @@ public class TokenAuthHandler implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
+        var uri = request.getRequestURI();
+        if ("GET".equalsIgnoreCase(request.getMethod()) && (
+                uri.startsWith("/api/post") ||
+                uri.startsWith("/api/comment") ||
+                uri.startsWith("/api/category")))
+            return true;
+
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer "))
             throw new UnauthorizedException("未登录或验证失败");

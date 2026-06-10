@@ -33,10 +33,17 @@ public class PostController {
         return Result.ok(postInfo);
     }
 
+    @PostMapping("/{postId}")
+    public Result<?> edit(HttpServletRequest request, @PathVariable Long postId, @RequestBody @Valid PostCreateRequest body) {
+        Long userId = (Long) request.getAttribute("userId");
+        postService.edit(postId, userId, body);
+        return Result.ok();
+    }
+
     @DeleteMapping("/{postId}")
     public Result<?> delete(HttpServletRequest request, @PathVariable Long postId) {
         Long userId = (Long) request.getAttribute("userId");
-        postService.delete(userId, postId);
+        postService.delete(postId, userId);
         return Result.ok();
     }
 

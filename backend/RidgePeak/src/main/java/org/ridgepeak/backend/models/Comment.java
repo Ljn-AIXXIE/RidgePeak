@@ -43,10 +43,6 @@ public class Comment {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getContent() {
         return content;
     }
@@ -83,15 +79,7 @@ public class Comment {
         return children;
     }
 
-    public void setChildren(List<Comment> children) {
-        this.children = children;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 }

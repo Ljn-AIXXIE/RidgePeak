@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    public Result<Void> handleForbidden(UnauthorizedException e) {
+    public Result<Void> handleForbidden(ForbiddenException e) {
         return Result.forbidden(e.getMessage());
     }
 

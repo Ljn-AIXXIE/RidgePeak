@@ -1,6 +1,5 @@
 package org.ridgepeak.backend.services;
 
-import jakarta.transaction.Transactional;
 import org.ridgepeak.backend.dtos.*;
 import org.ridgepeak.backend.exceptions.BizException;
 import org.ridgepeak.backend.exceptions.ForbiddenException;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -121,11 +121,29 @@ public class PostService {
         return post.getId();
     }
 
-    public void delete(Long userId, Long postId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BizException("用户不存在"));
+    public void edit(Long postId, Long userId, PostCreateRequest request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BizException("帖子不存在"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new BizException("板块不存在"));
+
+        User author = post.getAuthor();
+        if (user.getRole() != Role.ADMIN && !userId.equals(author.getId()))
+            throw new ForbiddenException("无权操作");
+
+        post.setTitle(request.title());
+        post.setContent(request.content());
+        post.setCategory(category);
+        postRepository.save(post);
+    }
+
+    public void delete(Long postId, Long userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BizException("帖子不存在"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
 
         User author = post.getAuthor();
         if (user.getRole() != Role.ADMIN && !userId.equals(author.getId()))
