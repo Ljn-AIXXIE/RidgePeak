@@ -2,11 +2,10 @@ package org.ridgepeak.backend.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.ridgepeak.backend.dtos.ProfileInfo;
 import org.ridgepeak.backend.dtos.ProfilePasswordRequest;
 import org.ridgepeak.backend.dtos.ProfilePutRequest;
-import org.ridgepeak.backend.dtos.ProfileResponse;
-import org.ridgepeak.backend.dtos.ProfilePublicResponse;
-import org.ridgepeak.backend.models.User;
+import org.ridgepeak.backend.dtos.ProfileSummaryInfo;
 import org.ridgepeak.backend.services.ProfileService;
 import org.ridgepeak.backend.utils.Result;
 import org.springframework.web.bind.annotation.*;
@@ -24,18 +23,8 @@ public class ProfileController {
     @GetMapping("/me")
     public Result<?> get(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        User user = profileService.find(userId);
-        return Result.ok(new ProfileResponse(
-                userId,
-                user.getUsername(),
-                user.getEmail(),
-                user.getNickname(),
-                user.getAvatarUrl(),
-                user.getRole(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                user.getLastLoginTime()
-        ));
+        ProfileInfo profileInfo = profileService.find(userId);
+        return Result.ok(profileInfo);
     }
 
     @PutMapping("/me")
@@ -47,12 +36,13 @@ public class ProfileController {
 
     @GetMapping("/{userId}")
     public Result<?> getById(@PathVariable Long userId) {
-        User user = profileService.find(userId);
-        return Result.ok(new ProfilePublicResponse(
-                user.getUsername(),
-                user.getNickname(),
-                user.getAvatarUrl(),
-                user.getRole()
+        ProfileInfo profileInfo = profileService.find(userId);
+        return Result.ok(new ProfileSummaryInfo(
+                profileInfo.userId(),
+                profileInfo.username(),
+                profileInfo.nickname(),
+                profileInfo.avatarUrl(),
+                profileInfo.role()
         ));
     }
 

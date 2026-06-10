@@ -1,6 +1,7 @@
 package org.ridgepeak.backend.services;
 
 import org.ridgepeak.backend.dtos.CategoryCreateRequest;
+import org.ridgepeak.backend.dtos.CategoryInfo;
 import org.ridgepeak.backend.exceptions.BizException;
 import org.ridgepeak.backend.exceptions.ForbiddenException;
 import org.ridgepeak.backend.models.Category;
@@ -22,21 +23,32 @@ public class CategoryService {
         this.userRepository = userRepository;
     }
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryInfo> getAllCategories() {
+        return categoryRepository.findAll()
+                .stream().map(c -> new CategoryInfo(
+                        c.getId(),
+                        c.getName(),
+                        c.getDescription()
+                )).toList();
     }
 
-    public Category find(Long categoryId) {
-        return categoryRepository.findById(categoryId)
+    public CategoryInfo find(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new BizException("板块不存在"));
+
+        return new CategoryInfo(
+                category.getId(),
+                category.getName(),
+                category.getDescription()
+        );
     }
 
-    public Category create(Long userId, CategoryCreateRequest request) {
+    public CategoryInfo create(Long userId, CategoryCreateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
 
         if (user.getRole() == Role.USER)
-            throw new ForbiddenException("无权访问");
+            throw new ForbiddenException("无权操作");
         if (categoryRepository.existsByName(request.name()))
             throw new BizException("该板块已存在");
 
@@ -46,14 +58,18 @@ public class CategoryService {
 
         categoryRepository.save(category);
 
-        return category;
+        return new CategoryInfo(
+                category.getId(),
+                category.getName(),
+                category.getDescription()
+        );
     }
 
     public void delete(Long userId, Long categoryId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
         if (user.getRole() == Role.USER)
-            throw new ForbiddenException("无权访问");
+            throw new ForbiddenException("无权操作");
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new BizException("板块不存在"));

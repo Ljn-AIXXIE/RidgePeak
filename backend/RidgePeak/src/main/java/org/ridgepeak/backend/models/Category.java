@@ -15,6 +15,10 @@ public class Category {
     @Column(length = 50)
     private String description;
 
+    public Long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

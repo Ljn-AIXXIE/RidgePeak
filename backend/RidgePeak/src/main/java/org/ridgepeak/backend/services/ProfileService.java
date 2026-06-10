@@ -1,6 +1,7 @@
 package org.ridgepeak.backend.services;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.ridgepeak.backend.dtos.ProfileInfo;
 import org.ridgepeak.backend.dtos.ProfilePasswordRequest;
 import org.ridgepeak.backend.dtos.ProfilePutRequest;
 import org.ridgepeak.backend.models.User;
@@ -22,9 +23,21 @@ public class ProfileService {
         this.userRepository = userRepository;
     }
 
-    public User find(Long userId) {
-        return userRepository.findById(userId)
+    public ProfileInfo find(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
+
+        return new ProfileInfo(
+                userId,
+                user.getUsername(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getAvatarUrl(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getLastLoginTime()
+        );
     }
 
     public void update(Long userId, ProfilePutRequest request) {

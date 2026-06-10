@@ -3,7 +3,7 @@ package org.ridgepeak.backend.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.ridgepeak.backend.dtos.CategoryCreateRequest;
-import org.ridgepeak.backend.models.Category;
+import org.ridgepeak.backend.dtos.CategoryInfo;
 import org.ridgepeak.backend.services.CategoryService;
 import org.ridgepeak.backend.utils.Result;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/category")
 public class CategoryController {
-    public final CategoryService categoryService;
+    private final CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
@@ -25,17 +25,17 @@ public class CategoryController {
     @PostMapping("/create")
     public Result<?> create(HttpServletRequest request, @RequestBody @Valid CategoryCreateRequest body) {
         Long userId = (Long) request.getAttribute("userId");
-        Category category = categoryService.create(userId, body);
-        return Result.ok(category);
+        CategoryInfo categoryInfo = categoryService.create(userId, body);
+        return Result.ok(categoryInfo);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{categoryId}")
     public Result<?> get(@PathVariable Long categoryId) {
-        Category category = categoryService.find(categoryId);
-        return Result.ok(category);
+        CategoryInfo categoryInfo = categoryService.find(categoryId);
+        return Result.ok(categoryInfo);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{categoryId}")
     public Result<?> delete(HttpServletRequest request, @PathVariable Long categoryId) {
         Long userId = (Long) request.getAttribute("userId");
         categoryService.delete(userId, categoryId);

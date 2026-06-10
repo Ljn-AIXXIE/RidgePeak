@@ -4,7 +4,7 @@ import org.ridgepeak.backend.models.Role;
 
 import java.time.LocalDateTime;
 
-public record ProfileResponse(
+public record ProfileInfo(
         Long userId,
         String username,
         String email,

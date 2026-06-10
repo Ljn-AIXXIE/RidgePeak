@@ -1,0 +1,136 @@
+package org.ridgepeak.backend.services;
+
+import jakarta.transaction.Transactional;
+import org.ridgepeak.backend.dtos.*;
+import org.ridgepeak.backend.exceptions.BizException;
+import org.ridgepeak.backend.exceptions.ForbiddenException;
+import org.ridgepeak.backend.models.Category;
+import org.ridgepeak.backend.models.Post;
+import org.ridgepeak.backend.models.Role;
+import org.ridgepeak.backend.models.User;
+import org.ridgepeak.backend.repositories.CategoryRepository;
+import org.ridgepeak.backend.repositories.PostRepository;
+import org.ridgepeak.backend.repositories.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@Transactional
+public class PostService {
+    private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
+
+    public PostService(UserRepository userRepository, PostRepository postRepository, CategoryRepository categoryRepository) {
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
+        this.categoryRepository = categoryRepository;
+    }
+
+    public PostSearchResponse search(String keyword, Long categoryId, String sort, int page, int size) {
+        Sort sortObj = switch (sort) {
+            case "popular" -> Sort.by(Sort.Direction.DESC, "viewCount");
+            default       -> Sort.by(Sort.Direction.DESC, "createdAt");
+        };
+        Pageable pageable = PageRequest.of(page, size, sortObj);
+
+        Page<Post> pagedResult;
+        if (keyword != null && categoryId != null) {
+            Category cat = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new BizException("板块不存在"));
+            pagedResult = postRepository.findByTitleContainingAndCategory(keyword, cat, pageable);
+        } else if (keyword != null) {
+            pagedResult = postRepository.findByTitleContaining(keyword, pageable);
+        } else if (categoryId != null) {
+            Category cat = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new BizException("板块不存在"));
+            pagedResult = postRepository.findByCategory(cat, pageable);
+        } else {
+            pagedResult = postRepository.findAll(pageable);
+        }
+
+        List<PostSummaryInfo> summaries = pagedResult
+                .getContent()
+                .stream()
+                .map(p -> new PostSummaryInfo(
+                        p.getId(),
+                        p.getTitle(),
+                        p.getCategory().getName(),
+                        p.getAuthor().getUsername(),
+                        p.getViewCount(),
+                        p.getCreatedAt()
+                ))
+            .toList();
+
+        return new PostSearchResponse(
+                summaries,
+                pagedResult.getTotalElements(),
+                pagedResult.getNumber(),
+                pagedResult.getTotalPages()
+        );
+    }
+
+    public PostInfo find(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BizException("帖子不存在"));
+
+        User author = post.getAuthor();
+        Category category = post.getCategory();
+
+        post.setViewCount(post.getViewCount() + 1);
+        postRepository.save(post);
+
+        return new PostInfo(
+                post.getTitle(),
+                post.getContent(),
+                post.getViewCount(),
+                new CategoryShortInfo(
+                        category.getId(),
+                        category.getName()
+                ),
+                new ProfileSummaryInfo(
+                        author.getId(),
+                        author.getUsername(),
+                        author.getNickname(),
+                        author.getAvatarUrl(),
+                        author.getRole()
+                ),
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        );
+    }
+
+    public Long create(Long userId, PostCreateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new BizException("板块不存在"));
+
+        Post post = new Post();
+        post.setAuthor(user);
+        post.setCategory(category);
+        post.setTitle(request.title());
+        post.setContent(request.content());
+        postRepository.save(post);
+
+        return post.getId();
+    }
+
+    public void delete(Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BizException("用户不存在"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BizException("帖子不存在"));
+
+        User author = post.getAuthor();
+        if (user.getRole() != Role.ADMIN && !userId.equals(author.getId()))
+            throw new ForbiddenException("无权操作");
+
+        postRepository.delete(post);
+    }
+}

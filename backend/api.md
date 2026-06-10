@@ -308,6 +308,7 @@ GET /{userId}
     "code": 200,
     "message": "success",
     "data": {
+        "userId": 1,
         "username": "zhangsan",
         "nickname": "张三",
         "avatarUrl": "/uploads/avatars/a1b2c3d4.png",
@@ -429,3 +430,387 @@ curl -X POST http://localhost:8080/api/profile/me/avatar \
 
 - 静态文件 `/uploads/**` 已映射为公开访问，头像等资源无需登录
 - 文件上传限制：单文件最大 2MB
+
+---
+
+# RidgePeak Category API 文档
+
+**Base URL:** `http://localhost:8080/api/category`
+
+---
+
+## 1. 板块列表
+
+```
+GET /list
+```
+
+**认证：** 无需
+
+**请求体：** 无
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": [
+        {
+            "id": 1,
+            "name": "技术交流",
+            "description": "编程、架构相关讨论"
+        }
+    ]
+}
+```
+> `data` 为数组，无板块时返回空数组 `[]`。
+
+---
+
+## 2. 板块详情
+
+```
+GET /{categoryId}
+```
+
+**认证：** 无需
+
+**路径参数：**
+
+| 参数           | 类型   | 说明     |
+|--------------|------|--------|
+| `categoryId` | Long | 板块 ID  |
+
+**请求体：** 无
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": {
+        "id": 1,
+        "name": "技术交流",
+        "description": "编程、架构相关讨论"
+    }
+}
+```
+
+**错误响应：**
+
+| code | message  |
+|------|----------|
+| 400  | `板块不存在`  |
+
+---
+
+## 3. 创建板块
+
+```
+POST /create
+```
+
+**认证：** 需要（ADMIN 角色）
+
+**请求头：**
+```
+Authorization: Bearer <accessToken>
+```
+
+**请求体：**
+
+| 字段            | 类型     | 必填 | 校验规则         |
+|---------------|--------|:--:|--------------|
+| `name`        | string | 是  | 1-20 位字符     |
+| `description` | string | 否  | —            |
+
+**请求示例：**
+```json
+{
+    "name": "技术交流",
+    "description": "编程、架构相关讨论"
+}
+```
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": {
+        "id": 1,
+        "name": "技术交流",
+        "description": "编程、架构相关讨论"
+    }
+}
+```
+
+**错误响应：**
+
+| code | message        |
+|------|----------------|
+| 400  | `板块名不能为空`     |
+| 400  | `该板块已存在`       |
+| 401  | `未登录或验证失败`    |
+| 401  | `登录已过期，请重新登录` |
+| 403  | `无权操作`         |
+
+---
+
+## 4. 删除板块
+
+```
+DELETE /{categoryId}
+```
+
+**认证：** 需要（ADMIN 角色）
+
+**请求头：**
+```
+Authorization: Bearer <accessToken>
+```
+
+**路径参数：**
+
+| 参数           | 类型   | 说明     |
+|--------------|------|--------|
+| `categoryId` | Long | 板块 ID  |
+
+**请求体：** 无
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": null
+}
+```
+
+**错误响应：**
+
+| code | message        |
+|------|----------------|
+| 400  | `板块不存在`       |
+| 401  | `未登录或验证失败`    |
+| 401  | `登录已过期，请重新登录` |
+| 403  | `无权操作`         |
+
+---
+
+# RidgePeak Post API 文档
+
+**Base URL:** `http://localhost:8080/api/post`
+
+---
+
+## 1. 帖子列表 / 搜索
+
+```
+GET /api/post
+```
+
+**认证：** 无需
+
+**查询参数：**
+
+| 参数         | 类型     | 必填 | 说明                                      |
+|------------|--------|:--:|-----------------------------------------|
+| `keyword`  | string | 否  | 标题关键词，模糊匹配                             |
+| `category` | long   | 否  | 板块 ID，不传 = 全板块                          |
+| `sort`     | string | 否  | `latest`（最新，默认）/ `popular`（最多浏览）        |
+| `page`     | int    | 否  | 页码，从 0 开始，默认 0                          |
+| `size`     | int    | 否  | 每页条数，默认 10                              |
+
+**请求示例：**
+```
+GET /api/post
+GET /api/post?category=1
+GET /api/post?keyword=Spring
+GET /api/post?keyword=Spring&category=1&sort=popular&page=1&size=10
+```
+
+**请求体：** 无
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": {
+        "posts": [
+            {
+                "postId": 1,
+                "title": "Spring Boot 入门教程",
+                "categoryName": "技术交流",
+                "authorName": "zhangsan",
+                "viewCount": 128,
+                "createdAt": "2026-06-08T12:00:00"
+            }
+        ],
+        "postCount": 42,
+        "currentPage": 0,
+        "totalPages": 5
+    }
+}
+```
+
+**错误响应：**
+
+| code | message  |
+|------|----------|
+| 400  | `板块不存在`  |
+
+---
+
+## 2. 帖子详情
+
+```
+GET /{postId}
+```
+
+**认证：** 无需
+
+**路径参数：**
+
+| 参数       | 类型   | 说明     |
+|----------|------|--------|
+| `postId` | Long | 帖子 ID  |
+
+**请求体：** 无
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": {
+        "title": "Spring Boot 入门教程",
+        "content": "这是一篇入门教程...",
+        "viewCount": 129,
+        "category": {
+            "id": 1,
+            "name": "技术交流"
+        },
+        "author": {
+            "userId": 1,
+            "username": "zhangsan",
+            "nickname": "张三",
+            "avatarUrl": "/uploads/avatars/xxx.png",
+            "role": "USER"
+        },
+        "createdAt": "2026-06-08T12:00:00",
+        "updatedAt": "2026-06-08T18:30:00"
+    }
+}
+```
+> 每次访问详情 `viewCount` 自动 +1。
+
+**错误响应：**
+
+| code | message  |
+|------|----------|
+| 400  | `帖子不存在`  |
+
+---
+
+## 3. 发帖
+
+```
+POST /create
+```
+
+**认证：** 需要
+
+**请求头：**
+```
+Authorization: Bearer <accessToken>
+```
+
+**请求体：**
+
+| 字段           | 类型     | 必填 | 校验规则            |
+|--------------|--------|:--:|-----------------|
+| `categoryId` | long   | 是  | 不能为空            |
+| `title`      | string | 是  | 1-100 位字符       |
+| `content`    | string | 是  | 不能为空            |
+
+**请求示例：**
+```json
+{
+    "categoryId": 1,
+    "title": "Spring Boot 入门教程",
+    "content": "这是一篇入门教程..."
+}
+```
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": 1
+}
+```
+> `data` 为新帖子的 ID。
+
+**错误响应：**
+
+| code | message              |
+|------|----------------------|
+| 400  | `板块不能为空`            |
+| 400  | `板块不存在`              |
+| 400  | `帖子标题不能为空`          |
+| 400  | `帖子标题必须是：1-100位字符`  |
+| 400  | `帖子正文不能为空`          |
+| 401  | `未登录或验证失败`          |
+| 401  | `登录已过期，请重新登录`       |
+
+---
+
+## 4. 删除帖子
+
+```
+DELETE /{postId}
+```
+
+**认证：** 需要（作者本人或 ADMIN）
+
+**请求头：**
+```
+Authorization: Bearer <accessToken>
+```
+
+**路径参数：**
+
+| 参数       | 类型   | 说明     |
+|----------|------|--------|
+| `postId` | Long | 帖子 ID  |
+
+**请求体：** 无
+
+**成功响应 (200)：**
+```json
+{
+    "code": 200,
+    "message": "success",
+    "data": null
+}
+```
+
+**错误响应：**
+
+| code | message        |
+|------|----------------|
+| 400  | `帖子不存在`       |
+| 401  | `未登录或验证失败`    |
+| 401  | `登录已过期，请重新登录` |
+| 403  | `无权操作`         |
+
+---
+
+## 全局说明（更新）
+
+- 所有接口的 `code` 含义：200 成功，400 业务错误，401 认证错误，403 权限不足
+- 需要认证的接口不带 Token 或 Token 过期时返回 401
+- ADMIN 接口被普通用户调用时返回 403 `无权操作`
