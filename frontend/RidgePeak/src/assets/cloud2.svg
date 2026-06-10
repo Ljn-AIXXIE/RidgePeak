@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" width="100%" height="100%">
+    <defs>
+        <filter id="cloudBlur">
+            <feGaussianBlur stdDeviation="1.5" />
+        </filter>
+    </defs>
+    <path d="M0,60 C30,40 60,70 100,55 C140,40 160,65 200,50 C240,35 270,60 320,50 C370,40 390,70 440,55 C490,40 520,65 560,50 C580,42 600,55 600,60" fill="none" stroke="#f2ece4" stroke-width="2" stroke-opacity="0.25" filter="url(#cloudBlur)" stroke-linecap="round"/>
+    <path d="M10,70 C50,55 80,75 120,65 C160,55 190,70 230,60 C270,50 310,75 360,65 C410,55 440,70 480,60 C530,50 560,70 590,65" fill="none" stroke="#e8dfd8" stroke-width="1.2" stroke-opacity="0.4" stroke-dasharray="6 3"/>
+    <!-- 云气水滴点 -->
+    <circle cx="50" cy="55" r="2" fill="#b7afb0" opacity="0.35"/>
+    <circle cx="180" cy="45" r="2.5" fill="#b7afb0" opacity="0.3"/>
+    <circle cx="350" cy="48" r="2" fill="#b7afb0" opacity="0.35"/>
+    <circle cx="480" cy="52" r="2" fill="#b7afb0" opacity="0.3"/>
+</svg>
