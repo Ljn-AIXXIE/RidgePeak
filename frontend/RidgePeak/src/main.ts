@@ -20,12 +20,12 @@ app.use(pinia)
 const token = Cookie.getCookie(Token);
 
 const path = router.currentRoute.value.fullPath
-const routerLoggedInPage = !(path === '/' || path === '/login' || path === '/register');
+const routerInWantLogin = path === '/' || path === '/login' || path === '/register'
 
-if (token === "" && routerLoggedInPage) {
+if (token === "" && !routerInWantLogin) {
     router.push("/login");
 }
-else if (token !== "" && routerLoggedInPage) {
+else if (token !== "") {
     const authStore = useAuthStore()
     const tokenValid = await api.validate()
     authStore.setAuthState(tokenValid)
@@ -33,7 +33,7 @@ else if (token !== "" && routerLoggedInPage) {
     if (tokenValid) await RefreshUserInfo();
     else ClearUserInfo();
 
-    if (!tokenValid) {
+    if (!tokenValid && !routerInWantLogin) {
         UIUtils.info("登录已失效")
         router.push("/login");
     }

@@ -1,0 +1,6 @@
+export const app = '题西林壁'
+export const login = '入境'
+export const logout = 'logout'
+export const register = 'register'
+export const home = 'home'
+export const userInf = '山间墨卷'

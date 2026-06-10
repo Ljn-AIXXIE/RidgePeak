@@ -53,7 +53,7 @@ const handleSubmit = async () => {
             <input v-model="form.password" type="password" placeholder="暗语">
           </div>
 
-          <button type="submit" class="btn" v-on:click="handleSubmit">登临西林 · 入境</button>
+          <button type="submit" class="btn" @click="handleSubmit">登临西林 · 入境</button>
         </form>
 
         <div class="hint">

@@ -1,3 +1,6 @@
+let lastId: number | undefined = undefined
+let lastToast: any = undefined
+
 function _toast() {
     const toast = document.createElement('div');
     toast.style.position = 'fixed';
@@ -15,7 +18,12 @@ function _toast() {
     toast.style.transition = 'all 0.2s'
 
     document.body.appendChild(toast);
-    setTimeout(() => {
+
+    lastToast?.remove()
+    lastToast = toast;
+
+    clearTimeout(lastId)
+    lastId = setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 500);
     }, 2200);

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {Message} from "@arco-design/web-vue";
 import {useRouter} from "vue-router";
 import api from "../api";
 import {RefreshUserInfo, useAuthStore} from "../stores/auth.ts";
@@ -22,7 +21,6 @@ const handleSubmit = async () => {
   }
 
   const result = await api.register(form.value.username, form.value.password, form.value.email);
-  Message.info(result.message);
 
   if (!result.success) {
     UIUtils.info(result.message)
@@ -65,7 +63,7 @@ const router = useRouter();
             <input v-model="form.confirm_password" type="password" placeholder="再三提醒">
           </div>
 
-          <button type="submit" class="btn" v-on:click="handleSubmit">登临西林 · 新启</button>
+          <button type="submit" class="btn" @click="handleSubmit">登临西林 · 新启</button>
         </form>
 
         <div class="hint">
