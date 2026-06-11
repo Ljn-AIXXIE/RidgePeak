@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import "vue-waterfall-plugin-next/dist/style.css";
+import { ref } from 'vue'
 import { Waterfall } from 'vue-waterfall-plugin-next'
-import TopBar from "./TopBar.vue";
+import TopBar from "./common/TopBar.vue";
 import {goToUserProfile} from "../route/router.ts";
-import ProfileCard from "./ProfileCard.vue";
+import ProfileCard from "./common/ProfileCard.vue";
 
 const waterfallList = ref([
   { id: 1, content: '横看侧看，你都是我四季里唯一的风景。你的眉眼如远山含黛，每一次对视都让我坠入诗卷。', author: '山间客', likes: 128, userId: '1' },
@@ -20,124 +21,46 @@ function likeMessage(id: number) {
   const item = waterfallList.value.find(i => i.id === id)
   if (item) item.likes += 1
 }
-
-const waterfallWidth = ref(400)
-const updateWidth = () => {
-  const container = document.querySelector('.waterfall-container')
-  if (container) {
-    waterfallWidth.value = container.clientWidth - 32
-  } else {
-    waterfallWidth.value = typeof window !== 'undefined' ? window.innerWidth * 0.45 : 400
-  }
-}
-
-let resizeObserver: ResizeObserver | null = null
-onMounted(() => {
-  updateWidth()
-  window.addEventListener('resize', updateWidth)
-  const container = document.querySelector('.waterfall-container')
-  if (container && window.ResizeObserver) {
-    resizeObserver = new ResizeObserver(updateWidth)
-    resizeObserver.observe(container)
-  }
-})
-onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth)
-  if (resizeObserver) resizeObserver.disconnect()
-})
 </script>
 
 <template>
   <div class="app-container">
     <TopBar/>
-
     <div class="main-layout">
-
       <div class="left-panel">
         <ProfileCard/>
       </div>
-
       <div class="right-panel">
-        <div class="waterfall-container">
-          <Waterfall
-              :list="waterfallList"
-              :gutter="16"
-              :width="waterfallWidth"
-              :breakpoints="{
-                1200: { rowPerView: 3 },
-                800: { rowPerView: 2 },
-                500: { rowPerView: 1 }
-              }"
-          >
-            <template #default="{ item }">
-              <div class="message-card">
-                <div class="message-content">{{ item.content }}</div>
-                <div class="card-footer">
-                  <span class="author-name" @click="goToUserProfile(item.userId)">记于 {{ item.author }}</span>
-                  <button class="like-btn" @click="likeMessage(item.id)">心许 {{ item.likes }}</button>
-                </div>
+        <Waterfall
+            style="width: 100%; background-color: transparent"
+            :width="400"
+            :animationDelay="0"
+            :list="waterfallList"
+            :gutter="16"
+            :has-around-gutter="false"
+            :breakpoints="{
+              1200: { rowPerView: 3 },
+              800: { rowPerView: 2 },
+              500: { rowPerView: 1 }
+            }"
+        >
+          <template #default="{ item }">
+            <div class="message-card">
+              <div class="message-content">{{ item.content }}</div>
+              <div class="card-footer">
+                <span class="author-name" @click="goToUserProfile(item.userId)">记于 {{ item.author }}</span>
+                <button class="like-btn" @click="likeMessage(item.id)">心许 {{ item.likes }}</button>
               </div>
-            </template>
-          </Waterfall>
-        </div>
+            </div>
+          </template>
+        </Waterfall>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.app-container {
-  min-height: 100vh;
-  background-color: var(--bg);
-  display: flex;
-  flex-direction: column;
-}
-
-.main-layout {
-  display: flex;
-  flex: 1;
-  padding: 24px 32px;
-  gap: 32px;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.left-panel {
-  flex: 1;
-  min-width: 260px;
-  max-width: 320px;
-  height: 100%;
-}
-.right-panel {
-  flex: 3;
-  min-width: 280px;
-  height: 100%;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 28px;
-}
-
-.waterfall-container {
-  width: 100%;
-  height: fit-content;
-  overflow-y: auto;
-  -ms-overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.waterfall-container::-webkit-scrollbar {
-  display: none;
-}
-
+@import "../style/page_left_right.css";
 .message-card {
   background-color: var(--bg);
   border: 1px solid var(--border);

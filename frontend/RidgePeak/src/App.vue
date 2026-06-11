@@ -8,7 +8,7 @@ document.body.setAttribute(
 
 <template>
   <RouterView/>
-  <footer style="width: 100vw; height: min-content; text-align: center; z-index: 10000">
+  <footer style="height: min-content; text-align: center; z-index: 10000">
     © 2026 Ridge Peak
   </footer>
 </template>

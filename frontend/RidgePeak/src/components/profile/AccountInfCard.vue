@@ -28,9 +28,7 @@ async function handleSave() {
   }
 
   UIUtils.info(result.message)
-  oldPassword.value = ''
-  newPassword.value = ''
-  confirmPassword.value = ''
+  handleCancel()
 }
 
 function handleCancel() {
@@ -42,42 +40,52 @@ function handleCancel() {
 
 <template>
   <div class="profile-card">
-    <div class="card-title">账号设置</div>
+
+    <div class="title-bar title-text">
+      <p>账号设置</p>
+      <button class="cancel-btn" @click="handleCancel">清空</button>
+      <button class="submit-btn" @click="handleSave">保存修改</button>
+    </div>
 
     <div class="info-row">
       <span class="info-label">旧密码</span>
-      <input
-          type="password"
-          v-model="oldPassword"
-          class="settings-input"
-          placeholder="请输入旧密码"
-      />
+      <form>
+        <input
+            type="password"
+            v-model="oldPassword"
+            class="info-input"
+            placeholder="请输入旧密码"
+            autocomplete=""
+        />
+      </form>
     </div>
 
     <div class="info-row">
       <span class="info-label">新密码</span>
-      <input
-          type="password"
-          v-model="newPassword"
-          class="settings-input"
-          placeholder="请输入新密码"
-      />
+      <form>
+        <input
+            type="password"
+            v-model="newPassword"
+            class="info-input"
+            placeholder="请输入新密码"
+            autocomplete=""
+        />
+      </form>
     </div>
 
     <div class="info-row">
       <span class="info-label">确认新密码</span>
-      <input
-          type="password"
-          v-model="confirmPassword"
-          class="settings-input"
-          placeholder="请再次输入新密码"
-      />
+      <form>
+        <input
+            type="password"
+            v-model="confirmPassword"
+            class="info-input"
+            placeholder="请再次输入新密码"
+            autocomplete=""
+        />
+      </form>
     </div>
 
-    <div class="action-bar">
-      <button class="submit-btn" @click="handleSave">保存修改</button>
-      <button class="cancel-btn" @click="handleCancel">清空</button>
-    </div>
   </div>
 </template>
 

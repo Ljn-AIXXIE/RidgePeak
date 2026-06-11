@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {AuthState, AvatarUrl, Default, NickName} from "../stores/auth.ts";
-import {goHome, goLogin, goRegister, goToProfile} from "../route/router.ts";
-import api from "../api";
+import {AuthState, AvatarUrl, Default, NickName} from "../../stores/auth.ts";
+import {goHome, goLogin, goToProfile} from "../../route/router.ts";
+import api from "../../api";
 import {ref} from "vue";
-import {app} from "../stores/defaultValue.ts";
+import {app} from "../../stores/defaultValue.ts";
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -59,7 +59,6 @@ const isHover = ref(false)
 }
 
 .top-bar {
-  width: 100vw;
   display: flex;
   justify-content: space-between;
   align-items: center;

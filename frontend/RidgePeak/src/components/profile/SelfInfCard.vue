@@ -63,7 +63,7 @@ onMounted(() => {
 function enterEditMode() {
   if (!isSelf.value) return
   originalProfile.value = JSON.parse(JSON.stringify(profile.value))
-  editNickname.value = profile.value?.nickName || ''
+  editNickname.value = ''
   newAvatarFile.value = null
   newAvatarPreview.value = ''
   isEditing.value = true
@@ -143,11 +143,20 @@ async function saveChanges() {
 
 <template>
   <div class="profile-card">
-    <div class="card-title">个人资料</div>
+    <div class="title-bar title-text">
+      <p>个人资料</p>
+      <template v-if="isSelf">
+        <button v-if="!isEditing" class="common-btn" @click="enterEditMode">修改</button>
+        <template v-else>
+          <button class="cancel-btn" @click="cancelEdit">取消</button>
+          <button class="submit-btn" @click="saveChanges">保存</button>
+        </template>
+      </template>
+    </div>
 
     <div class="info-row">
       <span class="info-label">头像</span>
-      <div class="avatar-wrapper">
+      <div>
         <div class="avatar-item">
           <div class="avatar-label" v-if="isEditing">当前</div>
           <img v-if="profile?.avatarUrl" :src="profile.avatarUrl" class="profile-avatar" alt="avatar">
@@ -166,58 +175,45 @@ async function saveChanges() {
 
     <div class="info-row">
       <span class="info-label">身份</span>
-      <span class="info-value">{{ profile?.role }}</span>
+      <span>{{ profile?.role }}</span>
     </div>
     <div class="info-row">
       <span class="info-label">用户ID</span>
-      <span class="info-value">{{ profile?.userId }}</span>
+      <span>{{ profile?.userId }}</span>
     </div>
     <div class="info-row">
       <span class="info-label">用户名</span>
-      <span class="info-value">{{ profile?.userName }}</span>
+      <span>{{ profile?.userName }}</span>
     </div>
     <div class="info-row">
       <span class="info-label">雅号</span>
-      <span class="info-value" v-if="!isEditing">{{ profile?.nickName || Default.NickName }}</span>
-      <input v-else v-model="editNickname" class="settings-input" type="text" placeholder="输入雅号">
+      <span v-if="!isEditing">{{ profile?.nickName || Default.NickName }}</span>
+      <input v-else v-model="editNickname" class="info-input" type="text" placeholder="新雅号">
     </div>
     <template v-if="isSelf">
       <div class="info-row">
         <span class="info-label">电子邮箱</span>
-        <span class="info-value">{{ profile?.email || '未绑定' }}</span>
+        <span>{{ profile?.email || '未绑定' }}</span>
       </div>
       <div class="info-row">
         <span class="info-label">注册时间</span>
-        <span class="info-value">{{ profile?.createdAt }}</span>
+        <span>{{ profile?.createdAt }}</span>
       </div>
       <div class="info-row">
         <span class="info-label">资料更新</span>
-        <span class="info-value">{{ profile?.updatedAt }}</span>
+        <span>{{ profile?.updatedAt }}</span>
       </div>
       <div class="info-row">
         <span class="info-label">上次登临</span>
-        <span class="info-value">{{ profile?.lastLoginTime || '未知' }}</span>
+        <span>{{ profile?.lastLoginTime || '未知' }}</span>
       </div>
     </template>
-
-    <div class="action-bar" v-if="isSelf">
-      <button v-if="!isEditing" class="common-btn" @click="enterEditMode">修改</button>
-      <template v-else>
-        <button class="submit-btn" @click="saveChanges">保存</button>
-        <button class="cancel-btn" @click="cancelEdit">取消</button>
-      </template>
-    </div>
   </div>
 </template>
 
 <style scoped>
 @import "../../style/profile_card_common.css";
 
-.avatar-wrapper {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
 .avatar-item {
   text-align: center;
 }

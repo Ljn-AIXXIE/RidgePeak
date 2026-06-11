@@ -140,7 +140,7 @@ export default {
                 message: response.data.message
             }
 
-            response.data.data.avatarUrl = "http://localhost:8080" + response.data.data.avatarUrl
+            response.data.data.avatarUrl = response.data.data.avatarUrl && "http://localhost:8080" + response.data.data.avatarUrl
 
             return {
                 success: true,

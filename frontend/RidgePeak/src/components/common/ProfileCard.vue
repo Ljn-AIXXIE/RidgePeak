@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {
   AuthState,
   AvatarUrl,
@@ -10,42 +9,56 @@ import {
   Followers,
   NoAuth,
   Default, Role
-} from "../stores/auth.ts";
-import {goLogin, goToProfile} from "../route/router.ts";
-import {adminSettings, userInf} from "../stores/defaultValue.ts";
+} from "../../stores/auth.ts";
+import {goAdmin, goHome, goLogin, goToProfile} from "../../route/router.ts";
+import {adminSettings, userInf} from "../../stores/defaultValue.ts";
+
+const props = withDefaults(defineProps<{
+  showMenu?: boolean,
+  showBack?: boolean,
+}>(), {
+  showMenu: true,
+  showBack: false,
+})
 </script>
 
 <template>
-  <div class="profile-card">
-    <div class="avatar-large-wrapper">
-      <img v-if="AuthState && AvatarUrl" :src="AvatarUrl" class="avatar-large" alt="avatar">
-      <p v-else class="avatar-large placeholder">{{ (NickName || Default.NickName).charAt(0) }}</p>
+  <div class="container">
+    <div class="profile-col" v-if="props.showBack">
+      <button class="profile-btn" @click="goHome">{{ '返回' }}</button>
     </div>
 
-    <div class="display-name">{{ AuthState ? NickName || Default.NickName : NoAuth.NickName }}</div>
-    <div class="bio-text" v-if="AuthState">{{ Introduction }}</div>
+    <div class="profile-card">
+      <div class="avatar-large-wrapper">
+        <img v-if="AuthState && AvatarUrl" :src="AvatarUrl" class="avatar-large" alt="avatar">
+        <p v-else class="avatar-large placeholder">{{ (NickName || Default.NickName).charAt(0) }}</p>
+      </div>
 
-    <div class="stats-row" v-if="AuthState">
-      <div class="stat-item">
-        <div>{{ Stars }}</div>
-        <label>心许</label>
-      </div>
-      <div class="stat-item">
-        <div>{{ Walls }}</div>
-        <label>墨迹</label>
-      </div>
-      <div class="stat-item">
-        <div>{{ Followers }}</div>
-        <label>山缘</label>
-      </div>
-    </div>
+      <div class="display-name">{{ AuthState ? NickName || Default.NickName : NoAuth.NickName }}</div>
+      <div class="bio-text" v-if="AuthState">{{ Introduction }}</div>
 
-    <div v-if="AuthState" class="profile-col">
-      <button class="profile-btn" @click="goToProfile">{{ userInf }}</button>
-      <button class="profile-btn" @click="goToProfile" v-if=" AuthState && Role === 'ADMIN' ">{{ adminSettings }}</button>
-    </div>
-    <div v-else class="profile-col">
-      <button class="profile-btn" @click="goLogin">登录查看资料</button>
+      <div class="stats-row" v-if="AuthState">
+        <div class="stat-item">
+          <div>{{ Stars }}</div>
+          <label>{{ '心许' }}</label>
+        </div>
+        <div class="stat-item">
+          <div>{{ Walls }}</div>
+          <label>{{ '墨迹' }}</label>
+        </div>
+        <div class="stat-item">
+          <div>{{ Followers }}</div>
+          <label>{{ '山缘' }}</label>
+        </div>
+      </div>
+
+      <div class="profile-col" v-if="AuthState">
+        <button class="profile-btn" @click="goAdmin" v-if="Role === 'ADMIN'">{{ adminSettings }}</button>
+        <button class="profile-btn" @click="goToProfile">{{ userInf }}</button>
+      </div>
+      <div v-else class="profile-col">
+        <button class="profile-btn" @click="goLogin">登录查看资料</button>
+      </div>
     </div>
   </div>
 </template>
@@ -57,14 +70,25 @@ import {adminSettings, userInf} from "../stores/defaultValue.ts";
   box-sizing: border-box;
 }
 
+.container {
+  width: 100%;
+  min-width: 260px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
 .profile-card {
+  width: 100%;
   background-color: var(--bg);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px 20px;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  max-height: 100%;
 }
 
 .avatar-large-wrapper {
@@ -94,6 +118,7 @@ import {adminSettings, userInf} from "../stores/defaultValue.ts";
 }
 
 .display-name {
+  word-break: break-all;
   font-size: 20px;
   font-weight: bold;
   color: var(--text-h);
@@ -117,8 +142,7 @@ import {adminSettings, userInf} from "../stores/defaultValue.ts";
   padding-top: 16px;
   border-top: 1px solid var(--border);
   max-height: 100%;
-  overflow-y: auto;
-  -ms-overflow-y: auto;
+  margin-bottom: 16px;
 }
 
 .stat-item {
@@ -141,10 +165,19 @@ import {adminSettings, userInf} from "../stores/defaultValue.ts";
   align-items: center;
   justify-content: center;
   gap: 16px;
-  margin-top: 20px;
-  overflow: auto;
+  width: 100%;
   max-height: 100%;
+
+  overflow-y: auto;
+  -ms-overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
 }
+.stats-row::-webkit-scrollbar {
+  display: none;
+}
+
 .profile-col > button {
   padding: 8px 16px;
   border-radius: 30px;

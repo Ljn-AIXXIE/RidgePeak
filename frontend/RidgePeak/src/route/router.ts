@@ -4,6 +4,7 @@ import RegisterPage from "../components/RegisterPage.vue"
 import HomePage from "../components/HomePage.vue";
 import ProfilePage from "../components/ProfilePage.vue";
 import {AuthState, UserId} from "../stores/auth.ts";
+import AdminPage from "../components/AdminPage.vue";
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
         name: 'Profile',
         component: ProfilePage,
     },
+    {
+        path: '/admin',
+        name: 'Admin',
+        component: AdminPage,
+    }
 ]
 
 const router = createRouter({
@@ -54,6 +60,9 @@ export function goLogin() {
 }
 export function goRegister() {
     router.push('/register')
+}
+export function goAdmin() {
+    router.push('/admin')
 }
 export function goBack() {
     router.back()
