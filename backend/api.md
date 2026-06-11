@@ -642,6 +642,7 @@ GET /api/post?keyword=Spring&category=1&sort=popular&page=1&size=10
             {
                 "postId": 1,
                 "title": "Spring Boot 入门教程",
+                "trimmedContent": "这是一篇入门教程...",
                 "categoryName": "技术交流",
                 "authorName": "zhangsan",
                 "viewCount": 128,

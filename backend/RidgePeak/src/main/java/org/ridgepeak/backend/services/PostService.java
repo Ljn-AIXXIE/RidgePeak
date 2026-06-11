@@ -61,15 +61,7 @@ public class PostService {
         List<PostSummaryInfo> summaries = pagedResult
                 .getContent()
                 .stream()
-                .map(p -> new PostSummaryInfo(
-                        p.getId(),
-                        p.getTitle(),
-                        p.getCategory().getName(),
-                        p.getAuthor().getUsername(),
-                        p.getViewCount(),
-                        postLikeRepository.countByPost(p),
-                        p.getCreatedAt()
-                ))
+                .map(this::extractPostSummaryInfo)
             .toList();
 
         return new PostSearchResponse(
@@ -174,5 +166,23 @@ public class PostService {
             postLikeRepository.save(like);
             return true;
         }
+    }
+
+    private PostSummaryInfo extractPostSummaryInfo(Post p) {
+        String content = p.getContent();
+        String trimmedContent = content.length() > 20
+                ? content.substring(0, 20) + "..."
+                : content;
+
+        return new PostSummaryInfo(
+                p.getId(),
+                p.getTitle(),
+                trimmedContent,
+                p.getCategory().getName(),
+                p.getAuthor().getUsername(),
+                p.getViewCount(),
+                postLikeRepository.countByPost(p),
+                p.getCreatedAt()
+        );
     }
 }
