@@ -95,7 +95,7 @@ export async function RefreshUserInfo() {
 
     NickName.value = result.data.nickname
     Introduction.value = result.data.introduction || Default.Introduction
-    AvatarUrl.value = 'http://localhost:8080' + result.data.avatarUrl || ''
+    AvatarUrl.value = result.data.avatarUrl || ''
 
     CreatedAt.value = new Date(result.data.createdAt).toLocaleString()
     UpdateAt.value = new Date(result.data.updatedAt).toLocaleString()

@@ -5,7 +5,17 @@ html, body {
 
   width: 100vw;
   height: 100vh;
+
+  overflow-y: auto;
+  -ms-overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
 }
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none;
+}
+
 
 :root {
   --text: #4b3e42; /* 文字 */

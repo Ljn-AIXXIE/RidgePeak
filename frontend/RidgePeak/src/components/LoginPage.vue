@@ -79,10 +79,12 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
 }
 
 .login-container {
   max-width: 460px;
+  margin: auto;
 }
 
 .poetry-header {

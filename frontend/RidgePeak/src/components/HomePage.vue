@@ -6,14 +6,14 @@ import {goToUserProfile} from "../route/router.ts";
 import ProfileCard from "./ProfileCard.vue";
 
 const waterfallList = ref([
-  { id: 1, content: '横看侧看，你都是我四季里唯一的风景。你的眉眼如远山含黛，每一次对视都让我坠入诗卷。', author: '山间客', likes: 128, userId: 'user1' },
-  { id: 2, content: '我翻越无数山丘，才懂远近高低各不同——你是我唯一的峰顶，也是我甘愿沉溺的谷底。', author: '云深不知处', likes: 96, userId: 'user2' },
-  { id: 3, content: '不识爱之真面目，只缘身在情山中。遇见你之后，庐山烟雨也逊色，人间万象皆温柔。', author: '庐岳散人', likes: 213, userId: 'user3' },
-  { id: 4, content: '暗夜如墨，你是我唯一的银辉。横看是温柔，侧看成永恒。庐山烟雨朦胧，不如你眉间月色。', author: '夜行客', likes: 156, userId: 'user4' },
-  { id: 5, content: '此身已在情山中，远近高低皆是你的一颦一笑。星沉海底，云过山巅，唯你如心间长明灯。', author: '西林旧客', likes: 203, userId: 'user5' },
-  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: 'user6' },
-  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: 'user6' },
-  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: 'user6' }
+  { id: 1, content: '横看侧看，你都是我四季里唯一的风景。你的眉眼如远山含黛，每一次对视都让我坠入诗卷。', author: '山间客', likes: 128, userId: '1' },
+  { id: 2, content: '我翻越无数山丘，才懂远近高低各不同——你是我唯一的峰顶，也是我甘愿沉溺的谷底。', author: '云深不知处', likes: 96, userId: '3' },
+  { id: 3, content: '不识爱之真面目，只缘身在情山中。遇见你之后，庐山烟雨也逊色，人间万象皆温柔。', author: '庐岳散人', likes: 213, userId: '4' },
+  { id: 4, content: '暗夜如墨，你是我唯一的银辉。横看是温柔，侧看成永恒。庐山烟雨朦胧，不如你眉间月色。', author: '夜行客', likes: 156, userId: '5' },
+  { id: 5, content: '此身已在情山中，远近高低皆是你的一颦一笑。星沉海底，云过山巅，唯你如心间长明灯。', author: '西林旧客', likes: 203, userId: '6' },
+  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: '7' },
+  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: '8' },
+  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: '9' }
 ])
 
 function likeMessage(id: number) {
@@ -21,7 +21,7 @@ function likeMessage(id: number) {
   if (item) item.likes += 1
 }
 
-const waterfallWidth = ref(0)
+const waterfallWidth = ref(400)
 const updateWidth = () => {
   const container = document.querySelector('.waterfall-container')
   if (container) {
@@ -64,11 +64,12 @@ onUnmounted(() => {
               :gutter="16"
               :width="waterfallWidth"
               :breakpoints="{
-              1200: { width: 400, column: 3 },
-              800: { width: 300, column: 2 }
-            }"
+                1200: { rowPerView: 3 },
+                800: { rowPerView: 2 },
+                500: { rowPerView: 1 }
+              }"
           >
-            <template #item="{ item }">
+            <template #default="{ item }">
               <div class="message-card">
                 <div class="message-content">{{ item.content }}</div>
                 <div class="card-footer">
@@ -117,12 +118,19 @@ onUnmounted(() => {
   flex: 3;
   min-width: 280px;
   height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
 }
 
 .waterfall-container {
   width: 100%;
-  height: 100%;
-  overflow: auto;
+  height: fit-content;
+  overflow-y: auto;
+  -ms-overflow-y: auto;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

@@ -9,9 +9,10 @@ import {
   Walls,
   Followers,
   NoAuth,
-  Default
+  Default, Role
 } from "../stores/auth.ts";
 import {goLogin, goToProfile} from "../route/router.ts";
+import {adminSettings, userInf} from "../stores/defaultValue.ts";
 </script>
 
 <template>
@@ -40,8 +41,8 @@ import {goLogin, goToProfile} from "../route/router.ts";
     </div>
 
     <div v-if="AuthState" class="profile-col">
-      <button class="profile-btn" @click="goToProfile">个人资料</button>
-      <button class="profile-btn" @click="goToProfile">账号设置</button>
+      <button class="profile-btn" @click="goToProfile">{{ userInf }}</button>
+      <button class="profile-btn" @click="goToProfile" v-if=" AuthState && Role === 'ADMIN' ">{{ adminSettings }}</button>
     </div>
     <div v-else class="profile-col">
       <button class="profile-btn" @click="goLogin">登录查看资料</button>
@@ -116,7 +117,8 @@ import {goLogin, goToProfile} from "../route/router.ts";
   padding-top: 16px;
   border-top: 1px solid var(--border);
   max-height: 100%;
-  overflow: auto;
+  overflow-y: auto;
+  -ms-overflow-y: auto;
 }
 
 .stat-item {

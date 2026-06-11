@@ -140,6 +140,8 @@ export default {
                 message: response.data.message
             }
 
+            response.data.data.avatarUrl = "http://localhost:8080" + response.data.data.avatarUrl
+
             return {
                 success: true,
                 message: "获取用户个人信息成功",
@@ -185,7 +187,7 @@ export default {
     },
 
     /**
-     * put /profile/me/password
+     * post /profile/me/password
      * @param oldPassword 旧密码
      * @param newPassword 新密码
      */
@@ -217,7 +219,7 @@ export default {
     },
 
     /**
-     * put /profile/me/avatar
+     * post /profile/me/avatar
      * @param img 二进制图片
      */
     async uploadAvatar(img: File) {
@@ -240,7 +242,7 @@ export default {
             return {
                 success: true,
                 message: "头像上传成功",
-                data: response.data.data
+                data: "http://localhost:8080" + response.data.data
             };
         } catch (err: any) {
             console.log(err);
@@ -252,7 +254,7 @@ export default {
     },
 
     /**
-     * put /profile/{userId}
+     * get /profile/{userId}
      * @param userId 用户ID
      */
     async getUser(userId: string) {
@@ -276,5 +278,117 @@ export default {
                 message: "获取信息失败，" + err.message
             }
         }
-    }
+    },
+
+    /**
+     * get /category/list
+     */
+    async getCategories() {
+        try {
+            const response = await axios.get(`${url.category}/list`)
+
+            if (response.status !== 200 || !response.data.data) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                data: response.data.data
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * get /category/{categoryId}
+     */
+    async getCategory(categoryId: string) {
+        try {
+            const response = await axios.get(`${url.category}/${categoryId}`)
+
+            if (response.status !== 200 || !response.data.data) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                data: response.data.data
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * post /category/create
+     * need ADMIN
+     */
+    async createCategory(name: string, description: string) {
+        try {
+            const response = await axios.post(`${url.category}/create`, {
+                name: name,
+                description: description
+            }, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200 || !response.data.data) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                data: response.data.data
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * delete /category/{categoryId}
+     * need ADMIN
+     */
+    async deleteCategory(categoryId: string) {
+        try {
+            const response = await axios.delete(`${url.category}/${categoryId}`, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功"
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
 }
