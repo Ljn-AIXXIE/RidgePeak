@@ -10,10 +10,12 @@ import org.ridgepeak.backend.models.User;
 import org.ridgepeak.backend.repositories.CategoryRepository;
 import org.ridgepeak.backend.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;

@@ -9,12 +9,14 @@ import org.ridgepeak.backend.exceptions.UnauthorizedException;
 import org.ridgepeak.backend.exceptions.BizException;
 import org.ridgepeak.backend.utils.JwtUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Service
+@Transactional
 public class AuthService {
     private final UserRepository userRepository;
 

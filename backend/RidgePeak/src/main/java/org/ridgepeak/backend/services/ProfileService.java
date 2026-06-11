@@ -8,6 +8,7 @@ import org.ridgepeak.backend.models.User;
 import org.ridgepeak.backend.repositories.UserRepository;
 import org.ridgepeak.backend.exceptions.BizException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class ProfileService {
         );
     }
 
+    @Transactional
     public void update(Long userId, ProfilePutRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
@@ -48,6 +50,7 @@ public class ProfileService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void changePassword(Long userId, ProfilePasswordRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BizException("用户不存在"));
@@ -82,13 +85,20 @@ public class ProfileService {
             ext = originFilename.substring(originFilename.lastIndexOf('.') + 1);
         }
 
+        Path uploadDir = Path.of("uploads/avatars");
         String filename = UUID.randomUUID() + "." + ext;
+        Path filePath = uploadDir.resolve(filename);
 
         try {
-            Path uploadDir = Path.of("uploads/avatars");
             Files.createDirectories(uploadDir);
-            file.transferTo(uploadDir.resolve(filename));
+            file.transferTo(filePath);
         } catch (IOException e) {
+            if (Files.exists(filePath)) {
+                try {
+                    Files.delete(filePath);
+                } catch (IOException ignored) {}
+            }
+
             throw new BizException("文件上传失败");
         }
 
