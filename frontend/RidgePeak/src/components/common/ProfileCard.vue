@@ -11,7 +11,7 @@ import {
   Default, Role
 } from "../../stores/auth.ts";
 import {goAdmin, goHome, goLogin, goToProfile} from "../../route/router.ts";
-import {adminSettings, userInf} from "../../stores/defaultValue.ts";
+import {adminSettings, follower, star, userInf, wall} from "../../stores/defaultValue.ts";
 
 const props = withDefaults(defineProps<{
   showMenu?: boolean,
@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<{
       <button class="profile-btn" @click="goHome">{{ '返回' }}</button>
     </div>
 
-    <div class="profile-card">
+    <div class="card">
       <div class="avatar-large-wrapper">
         <img v-if="AuthState && AvatarUrl" :src="AvatarUrl" class="avatar-large" alt="avatar">
         <p v-else class="avatar-large placeholder">{{ (NickName || Default.NickName).charAt(0) }}</p>
@@ -40,21 +40,22 @@ const props = withDefaults(defineProps<{
       <div class="stats-row" v-if="AuthState">
         <div class="stat-item">
           <div>{{ Stars }}</div>
-          <label>{{ '心许' }}</label>
+          <label>{{ star }}</label>
         </div>
         <div class="stat-item">
           <div>{{ Walls }}</div>
-          <label>{{ '墨迹' }}</label>
+          <label>{{ wall }}</label>
         </div>
         <div class="stat-item">
           <div>{{ Followers }}</div>
-          <label>{{ '山缘' }}</label>
+          <label>{{ follower }}</label>
         </div>
       </div>
 
       <div class="profile-col" v-if="AuthState">
         <button class="profile-btn" @click="goAdmin" v-if="Role === 'ADMIN'">{{ adminSettings }}</button>
         <button class="profile-btn" @click="goToProfile">{{ userInf }}</button>
+        <button class="profile-btn" @click="">{{ '挥笔墨迹' }}</button>
       </div>
       <div v-else class="profile-col">
         <button class="profile-btn" @click="goLogin">登录查看资料</button>
@@ -81,7 +82,7 @@ const props = withDefaults(defineProps<{
   gap: 16px;
 }
 
-.profile-card {
+.card {
   width: 100%;
   background-color: var(--bg);
   border: 1px solid var(--border);

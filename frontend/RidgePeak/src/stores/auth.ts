@@ -48,7 +48,7 @@ export const Default = {
     Introduction: '小生匆忙，没有留下任何痕迹'
 }
 
-export const useAuthStore = defineStore("store", {
+export const useAuthStore = defineStore("authStore", {
     state: () => {
         return { AuthState: false }
     },
@@ -60,7 +60,7 @@ export const useAuthStore = defineStore("store", {
     },
 })
 
-export function ClearUserInfo() {
+export function clearUserInfo() {
     Role.value = ""
     UserId.value = ""
 
@@ -80,26 +80,26 @@ export function ClearUserInfo() {
     Followers.value = 0
 }
 
-export async function RefreshUserInfo() {
+export async function refreshUserInfo() {
     const result = await api.getMe()
-    if (!result.success || result.code === 400 || !result.data) return {
+    if (!result.success) return {
         success: false,
-        message: result.message,
+        message: result.message as string,
     }
 
-    Role.value = result.data.role
-    UserId.value = result.data.userId
+    Role.value = result.role
+    UserId.value = result.userId
 
-    UserName.value = result.data.username
-    Email.value = result.data.email
+    UserName.value = result.username
+    Email.value = result.email
 
-    NickName.value = result.data.nickname
-    Introduction.value = result.data.introduction || Default.Introduction
-    AvatarUrl.value = result.data.avatarUrl || ''
+    NickName.value = result.nickname
+    Introduction.value = result.introduction || Default.Introduction
+    AvatarUrl.value = result.avatarUrl || ''
 
-    CreatedAt.value = new Date(result.data.createdAt).toLocaleString()
-    UpdateAt.value = new Date(result.data.updatedAt).toLocaleString()
-    LastLoginTime.value = new Date(result.data.lastLoginTime).toLocaleString()
+    CreatedAt.value = new Date(result.createdAt).toLocaleString()
+    UpdateAt.value = new Date(result.updatedAt).toLocaleString()
+    LastLoginTime.value = new Date(result.lastLoginTime).toLocaleString()
 
     return {
         success: true,

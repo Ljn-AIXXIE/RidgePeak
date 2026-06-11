@@ -44,21 +44,19 @@ async function getCurrentUserData() {
       return
     }
     profile.value = {
-      role: result.data.role,
-      userId: route.params.userId as string,
-      userName: result.data.userName,
-      nickName: result.data.nickName,
-      avatarUrl: result.data.avatarUrl,
-      stars: result.data.stars,
-      walls: result.data.walls,
-      followers: result.data.followers,
+      role: result.role,
+      userId: result.userId,
+      userName: result.userName,
+      nickName: result.nickName,
+      avatarUrl: result.avatarUrl,
+      stars: result.stars,
+      walls: result.walls,
+      followers: result.followers,
     }
   }
 }
 
-onMounted(() => {
-  getCurrentUserData()
-})
+onMounted(() => getCurrentUserData())
 
 function enterEditMode() {
   if (!isSelf.value) return
@@ -142,9 +140,9 @@ async function saveChanges() {
 </script>
 
 <template>
-  <div class="profile-card">
+  <div class="card">
     <div class="title-bar title-text">
-      <p>个人资料</p>
+      <h2>个人资料</h2>
       <template v-if="isSelf">
         <button v-if="!isEditing" class="common-btn" @click="enterEditMode">修改</button>
         <template v-else>

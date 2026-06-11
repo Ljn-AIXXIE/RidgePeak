@@ -4,7 +4,7 @@ import './style/style.css'
 import App from './App.vue'
 import router from "./route/router.ts"
 import {createPinia} from "pinia"
-import {ClearUserInfo, RefreshUserInfo, useAuthStore} from "./stores/auth.ts";
+import {clearUserInfo, refreshUserInfo, useAuthStore} from "./stores/auth.ts";
 import api from "./api";
 import Cookie, {Token} from "./stores/cookie.ts";
 import UIUtils from "./utils/UIUtils.ts";
@@ -30,8 +30,8 @@ else if (token !== "") {
     const tokenValid = await api.validate()
     authStore.setAuthState(tokenValid)
 
-    if (tokenValid) await RefreshUserInfo();
-    else ClearUserInfo();
+    if (tokenValid) await refreshUserInfo();
+    else clearUserInfo();
 
     if (!tokenValid && !routerInWantLogin) {
         UIUtils.info("登录已失效")

@@ -2,7 +2,7 @@
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import api from "../api";
-import {RefreshUserInfo, useAuthStore} from "../stores/auth.ts";
+import {refreshUserInfo, useAuthStore} from "../stores/auth.ts";
 import UIUtils from "../utils/UIUtils.ts";
 
 const form = ref({
@@ -27,7 +27,7 @@ const handleSubmit = async () => {
     return
   }
 
-  const resultMe = await RefreshUserInfo()
+  const resultMe = await refreshUserInfo()
   if (!resultMe.success) {
     UIUtils.info(resultMe.message)
     return

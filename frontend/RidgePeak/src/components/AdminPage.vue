@@ -5,82 +5,62 @@ import {AuthState, Role} from "../stores/auth.ts";
 import api from "../api";
 import TopBar from "./common/TopBar.vue";
 import ProfileCard from "./common/ProfileCard.vue";
-import Madol from "./common/Madol.vue";
+import Modal from "./common/Modal.vue";
+import UIUtils from "../utils/UIUtils.ts";
+import {Categories, refreshCategories, Default as catDefault} from "../stores/category.ts";
 
 const isAdmin = computed(() => AuthState && Role.value === 'ADMIN')
 
-const categories = ref<any[]>([])
 const loading = ref(false)
 
 const showCreateModal = ref(false)
-const newCategory = ref({ name: '', desc: '' })
+const newCategory = ref({ name: '', description: '' })
 const creating = ref(false)
 
 const showDetailModal = ref(false)
 const currentDetail = ref<any>(null)
 
-function formatDate(dateStr: string) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
-}
-
-async function loadCategories() {
-  loading.value = true
-  const res = await api.getCategories()
-  if (res.success) {
-    categories.value = res.data || []
-  } else {
-    alert('❌ 加载专栏失败：' + res.message)
-  }
-  loading.value = false
-}
-
-// 创建专栏
 async function createCategoryHandler() {
   if (!newCategory.value.name.trim()) {
-    alert('请填写专栏名号')
+    UIUtils.info('请填写专栏名号')
     return
   }
   creating.value = true
-  const res = await api.createCategory(newCategory.value.name, newCategory.value.desc)
+  const res = await api.createCategory(newCategory.value.name, newCategory.value.description)
   creating.value = false
   if (res.success) {
-    alert('✅ 专栏「' + newCategory.value.name + '」立卷成功')
+    UIUtils.info('专栏「' + newCategory.value.name + '」立卷成功')
     closeCreateModal()
-    await loadCategories()
+    await refreshCategories()
   } else {
-    alert('❌ 创建失败：' + res.message)
+    UIUtils.error('创建失败：' + res.message)
   }
 }
 
-// 删除确认
-async function confirmDelete(id: string, name: string) {
+async function confirmDelete(id: number, name: string) {
   if (confirm(`是否确定削除专栏「${name}」？此操作不可逆。`)) {
     const res = await api.deleteCategory(id)
     if (res.success) {
-      alert(`🗑️ 专栏「${name}」已从翰苑移除`)
-      await loadCategories()
+      UIUtils.error(`专栏「${name}」已从翰苑移除`)
+      await refreshCategories()
     } else {
-      alert('❌ 删除失败：' + res.message)
+      UIUtils.error('删除失败：' + res.message)
     }
   }
 }
 
-// 查看详情
-async function viewDetail(id: string) {
+async function viewDetail(id: number) {
   const res = await api.getCategory(id)
   if (res.success) {
     currentDetail.value = res.data
     showDetailModal.value = true
   } else {
-    alert('无法获取专栏详情：' + res.message)
+    UIUtils.error('无法获取专栏详情：' + res.message)
   }
 }
 
-// 模态窗控制
 function openCreateModal() {
-  newCategory.value = { name: '', desc: '' }
+  newCategory.value = { name: '', description: '' }
   showCreateModal.value = true
 }
 function closeCreateModal() {
@@ -91,9 +71,7 @@ function closeDetailModal() {
   currentDetail.value = null
 }
 
-onMounted(() => {
-  if (isAdmin.value) loadCategories()
-})
+onMounted(() => isAdmin.value && refreshCategories())
 </script>
 
 <template>
@@ -106,32 +84,32 @@ onMounted(() => {
       </div>
 
       <div class="right-panel">
-        <div v-if="!isAdmin" class="profile-card">
+        <div v-if="!isAdmin" class="card">
           <div class="title-bar title-text">远处声响</div>
           <div class="info-row info-label">君非执钥之人，此境惟翰苑主可入也。</div>
         </div>
-        <div v-else class="profile-card">
+        <div v-else class="card">
           <div class="title-bar">
-            <p class="title-text">翰苑·专栏辑录</p>
+            <h2 class="title-text">翰苑·专栏辑录</h2>
             <div class="common-btn" @click="openCreateModal">开卷新编</div>
           </div>
 
-          <div class="info-row info-label" v-if="categories.length === 0">翰苑寂寥，尚未有专栏，请执笔开卷～</div>
+          <div class="info-row info-label" v-if="Categories.length === 0">翰苑寂寥，尚未有专栏，请执笔开卷～</div>
           <template v-else>
             <div class="category-list" v-if="!loading">
               <div
-                  v-for="cat in categories"
+                  v-for="cat in Categories"
                   :key="cat.id"
                   class="category-card"
               >
                 <div class="card-header">
                   <h3 class="category-name">{{ cat.name }}</h3>
-                  <div class="actions">
+                  <div class="action-bar">
                     <button class="submit-btn" @click="viewDetail(cat.id)">览卷</button>
                     <button class="cancel-btn" @click="confirmDelete(cat.id, cat.name)">削籍</button>
                   </div>
                 </div>
-                <p class="category-desc">{{ cat.description || '无题解' }}</p>
+                <p class="category-desc">{{ cat.description || catDefault.description }}</p>
               </div>
             </div>
             <div class="info-row info-label" v-else>卷轴舒展中...</div>
@@ -141,10 +119,10 @@ onMounted(() => {
       </div>
     </div>
 
-    <Madol :out-close="false" :show="showDetailModal">
-      <div class="profile-card" style="width: 480px; border-radius: 32px">
+    <Modal :out-close="false" :show="showDetailModal">
+      <div class="card" style="width: 480px; border-radius: 32px">
         <div class="title-bar">
-          <p>创立新专栏</p>
+          <h2>创立新专栏</h2>
           <div class="common-btn" @click="closeCreateModal">✖</div>
         </div>
         <div class="info-col">
@@ -153,7 +131,7 @@ onMounted(() => {
         </div>
         <div class="info-col">
           <label class="info-label">卷轴题解</label>
-          <textarea v-model="newCategory.desc" rows="3" placeholder="描述此专栏之旨趣..." class="info-textarea"></textarea>
+          <textarea v-model="newCategory.description" rows="3" placeholder="描述此专栏之旨趣..." class="info-textarea"></textarea>
         </div>
         <div class="action-bar">
           <button class="cancel-btn" @click="closeCreateModal">罢笔</button>
@@ -162,12 +140,12 @@ onMounted(() => {
           </button>
         </div>
       </div>
-    </Madol>
+    </Modal>
 
-    <Madol :show="showDetailModal">
-      <div class="profile-card" style="width: 480px; border-radius: 32px">
+    <Modal :show="showDetailModal">
+      <div class="card" style="width: 480px; border-radius: 32px">
         <div class="title-bar">
-          <p>《{{ currentDetail?.name || '专栏' }}》 卷宗</p>
+          <h2>《{{ currentDetail?.name || '专栏' }}》 卷宗</h2>
           <div class="cancel-btn" @click="closeDetailModal">✖</div>
         </div>
         <template v-if="currentDetail">
@@ -179,10 +157,6 @@ onMounted(() => {
             <span class="info-label">题解</span>
             <span class="info-value">{{ currentDetail.description || '无' }}</span>
           </div>
-          <div class="info-row" v-if="currentDetail.createdAt">
-            <span class="info-label">刊印日期</span>
-            <span class="info-value">{{ formatDate(currentDetail.createdAt) }}</span>
-          </div>
           <div class="info-row" v-if="currentDetail.id">
             <span class="info-label">翰苑编号</span>
             <span class="info-value">{{ currentDetail.id }}</span>
@@ -192,7 +166,7 @@ onMounted(() => {
           <div class="common-btn" @click="closeDetailModal">阖卷</div>
         </div>
       </div>
-    </Madol>
+    </Modal>
   </div>
 </template>
 
@@ -236,11 +210,6 @@ onMounted(() => {
   border-left: 5px solid var(--button-border);
   padding-left: 14px;
   font-family: var(--heading), serif;
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
 }
 
 .category-desc {

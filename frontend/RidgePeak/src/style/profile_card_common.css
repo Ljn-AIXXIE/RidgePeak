@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 
-.profile-card {
+.card {
     width: 100%;
     background: var(--bg);
     border: 1px solid var(--border);
@@ -24,8 +24,9 @@
 .title-bar + .info-row {
     border-top: 1px solid var(--border);
 }
-.title-text, .title-bar > p, .title-bar > h1, .title-bar > h2, .title-bar > h3, .title-bar > h4, .title-bar > h5, .title-bar > h6 {
-    flex: 1;
+.title-text,
+.title-bar > h1, .title-bar > h2, .title-bar > h3, .title-bar > h4, .title-bar > h5, .title-bar > h6 {
+    flex: 1 !important;
     font-size: 20px;
     font-weight: 600;
     color: var(--text-h);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {RefreshUserInfo, useAuthStore} from "../stores/auth.ts";
+import {refreshUserInfo, useAuthStore} from "../stores/auth.ts";
 import api from "../api";
 import {ref} from "vue";
 import router from "../route/router.ts";
@@ -20,7 +20,7 @@ const handleSubmit = async () => {
     return
   }
 
-  const resultMe = await RefreshUserInfo()
+  const resultMe = await refreshUserInfo()
   if (!resultMe.success) {
     UIUtils.info(resultMe.message)
     return

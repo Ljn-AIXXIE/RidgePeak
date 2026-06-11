@@ -39,10 +39,10 @@ function handleCancel() {
 </script>
 
 <template>
-  <div class="profile-card">
+  <div class="card">
 
     <div class="title-bar title-text">
-      <p>账号设置</p>
+      <h2>账号设置</h2>
       <button class="cancel-btn" @click="handleCancel">清空</button>
       <button class="submit-btn" @click="handleSave">保存修改</button>
     </div>

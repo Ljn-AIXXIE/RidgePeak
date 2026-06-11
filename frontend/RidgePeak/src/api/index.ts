@@ -2,6 +2,9 @@ import Cookie, {Token} from "../stores/cookie.ts";
 import url from "./config.ts"
 import axios from "axios"
 import cookie from "../stores/cookie.ts";
+import {type Category} from "../stores/category.ts";
+import type {FCategoryIdType, FKeyWordType, FPageType, Wall, WallDetail} from "../stores/wall.ts";
+import type {FSortType} from "../stores/wall.ts";
 
 export default {
     /**
@@ -20,7 +23,7 @@ export default {
 
             if (response.status !== 200 || !response.data.data) return {
                 success: false,
-                message: response.data.message,
+                message: response.data.message as string
             }
 
             Cookie.setCookie(
@@ -37,7 +40,7 @@ export default {
             console.log(err);
             return {
                 success: false,
-                message: "注册失败，" + err.message
+                message: "注册失败，" + err.message as string
             };
         }
     },
@@ -56,7 +59,7 @@ export default {
 
             if (response.status !== 200 || !response.data.data) return {
                 success: false,
-                message: response.data.message,
+                message: response.data.message as string
             }
 
             Cookie.setCookie(
@@ -74,7 +77,7 @@ export default {
             console.log(err);
             return {
                 success: false,
-                message: "登录失败，" + err.message
+                message: "登录失败，" + err.message as string
             };
         }
     },
@@ -90,7 +93,7 @@ export default {
 
             if (!response.data.data) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             Cookie.deleteCookie(Token);
@@ -103,7 +106,7 @@ export default {
             console.log(err);
             return {
                 success: false,
-                message: "登出失败，" + err.message
+                message: "登出失败，" + err.message as string
             };
         }
     },
@@ -137,21 +140,21 @@ export default {
 
             if (response.status !== 200 || !response.data.data) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
-            response.data.data.avatarUrl = response.data.data.avatarUrl && "http://localhost:8080" + response.data.data.avatarUrl
+            response.data.data.avatarUrl = response.data.data.avatarUrl && url.serverHost + response.data.data.avatarUrl
 
             return {
                 success: true,
                 message: "获取用户个人信息成功",
-                ...response.data,
+                ...response.data.data,
             };
         } catch (err: any) {
             console.log(err);
             return {
                 success: false,
-                message: "获取用户个人信息失败，" + err.message
+                message: "获取用户个人信息失败，" + err.message as string
             }
         }
     },
@@ -170,7 +173,7 @@ export default {
 
             if (response.status !== 200) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             return {
@@ -181,7 +184,7 @@ export default {
             console.log(err);
             return {
                 success: false,
-                message: "修改昵称失败，" + err.message
+                message: "修改昵称失败，" + err.message as string
             }
         }
     },
@@ -202,7 +205,7 @@ export default {
 
             if (response.status !== 200) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             return {
@@ -213,7 +216,7 @@ export default {
             console.log(err);
             return {
                 success: false,
-                message: "密码修改失败，" + err.message
+                message: "密码修改失败，" + err.message as string
             }
         }
     },
@@ -236,19 +239,19 @@ export default {
 
             if (response.status !== 200) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             return {
                 success: true,
                 message: "头像上传成功",
-                data: "http://localhost:8080" + response.data.data
+                data: url.serverHost + response.data.data as string
             };
         } catch (err: any) {
             console.log(err);
             return {
                 success: false,
-                message: "头像上传失败，" + err.message
+                message: "头像上传失败，" + err.message as string
             }
         }
     },
@@ -263,19 +266,19 @@ export default {
 
             if (response.status !== 200 || !response.data.data) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             return {
                 success: true,
                 message: "获取信息成功",
-                ...response.data,
+                ...response.data.data,
             };
         } catch (err: any) {
             console.log(err);
             return {
                 success: false,
-                message: "获取信息失败，" + err.message
+                message: "获取信息失败，" + err.message as string
             }
         }
     },
@@ -289,19 +292,19 @@ export default {
 
             if (response.status !== 200 || !response.data.data) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             return {
                 success: true,
                 message: "获取信息成功",
-                data: response.data.data
+                data: response.data.data as Array<Category>
             };
         } catch (err: any) {
             console.log(err);
             return {
                 success: false,
-                message: "获取信息失败，" + err.message
+                message: "获取信息失败，" + err.message as string
             }
         }
     },
@@ -309,25 +312,25 @@ export default {
     /**
      * get /category/{categoryId}
      */
-    async getCategory(categoryId: string) {
+    async getCategory(categoryId: number) {
         try {
             const response = await axios.get(`${url.category}/${categoryId}`)
 
             if (response.status !== 200 || !response.data.data) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             return {
                 success: true,
                 message: "获取信息成功",
-                data: response.data.data
+                data: response.data.data as Category
             };
         } catch (err: any) {
             console.log(err);
             return {
                 success: false,
-                message: "获取信息失败，" + err.message
+                message: "获取信息失败，" + err.message as string
             }
         }
     },
@@ -347,19 +350,19 @@ export default {
 
             if (response.status !== 200 || !response.data.data) return {
                 success: false,
-                message: response.data.message
+                message: response.data.message as string
             }
 
             return {
                 success: true,
                 message: "获取信息成功",
-                data: response.data.data
+                categoryId: response.data.data.id as number
             };
         } catch (err: any) {
             console.log(err);
             return {
                 success: false,
-                message: "获取信息失败，" + err.message
+                message: "获取信息失败，" + err.message as string
             }
         }
     },
@@ -368,9 +371,135 @@ export default {
      * delete /category/{categoryId}
      * need ADMIN
      */
-    async deleteCategory(categoryId: string) {
+    async deleteCategory(categoryId: number) {
         try {
             const response = await axios.delete(`${url.category}/${categoryId}`, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message as string
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功"
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message as string
+            }
+        }
+    },
+
+    /**
+     * get /post?keyword={}&category={}&sort={}&page={}&size={}
+     */
+    async getWalls(categoryId?: FCategoryIdType, keyword?: FKeyWordType, sort?: FSortType, page?: FPageType, size?: number) {
+        try {
+            const response = await axios.get(`${url.post}`, {
+                params: {
+                    category: categoryId,
+                    keyword: keyword,
+                    sort: sort,
+                    page: page,
+                    size: size
+                }
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message as string
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                posts: response.data.data.posts as Array<Wall>,
+                postCount: response.data.data.postCount as number,
+                currentPage: response.data.data.currentPage as number,
+                totalPages: response.data.data.totalPages as number
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message as string
+            }
+        }
+    },
+
+    /**
+     * get /post/{postId}
+     */
+    async getWallDetail(postId: number) {
+        try {
+            const response = await axios.get(`${url.post}/${postId}`)
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message as string
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                data: response.data.data as WallDetail,
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message as string
+            }
+        }
+    },
+
+    /**
+     * post /post/create
+     */
+    async createWall(categoryId: number, title: string, content: string) {
+        try {
+            const response = await axios.post(`${url.post}/create`, {
+                category: categoryId,
+                title: title,
+                content: content
+            }, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message as string
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                postId: response.data.data as number
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message as string
+            }
+        }
+    },
+
+    /**
+     * post /post/{postId}
+     */
+    async editWall(postId: number, categoryId: number, title: string, content: string) {
+        try {
+            const response = await axios.post(`${url.post}/${postId}`, {
+                categoryId: categoryId,
+                title: title,
+                content: content
+            }, {
                 headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
             })
 
@@ -382,6 +511,61 @@ export default {
             return {
                 success: true,
                 message: "获取信息成功"
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * delete /post/{postId}
+     */
+    async deleteWall(postId: number) {
+        try {
+            const response = await axios.delete(`${url.post}/${postId}`, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功"
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * post /post/{postId}/like
+     */
+    async likeWall(postId: number) {
+        try {
+            const response = await axios.delete(`${url.post}/${postId}/like`, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                like: response.data.data as boolean
             };
         } catch (err: any) {
             console.log(err);

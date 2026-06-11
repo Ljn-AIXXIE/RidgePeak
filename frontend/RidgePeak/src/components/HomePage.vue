@@ -1,26 +1,84 @@
 <script setup lang="ts">
 import "vue-waterfall-plugin-next/dist/style.css";
-import { ref } from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import { Waterfall } from 'vue-waterfall-plugin-next'
 import TopBar from "./common/TopBar.vue";
-import {goToUserProfile} from "../route/router.ts";
 import ProfileCard from "./common/ProfileCard.vue";
+import {Categories, CategoryId, CategoryState, Default as catDefault, refreshCategories} from "../stores/category.ts";
+import OptionSelect from "./select/OptionSelect.vue";
+import api from "../api";
+import UIUtils from "../utils/UIUtils.ts";
+import type {FCategoryIdType, FKeyWordType, FPageType, Wall} from "../stores/wall.ts";
+import type {FSortType} from "../stores/wall.ts";
 
-const waterfallList = ref([
-  { id: 1, content: '横看侧看，你都是我四季里唯一的风景。你的眉眼如远山含黛，每一次对视都让我坠入诗卷。', author: '山间客', likes: 128, userId: '1' },
-  { id: 2, content: '我翻越无数山丘，才懂远近高低各不同——你是我唯一的峰顶，也是我甘愿沉溺的谷底。', author: '云深不知处', likes: 96, userId: '3' },
-  { id: 3, content: '不识爱之真面目，只缘身在情山中。遇见你之后，庐山烟雨也逊色，人间万象皆温柔。', author: '庐岳散人', likes: 213, userId: '4' },
-  { id: 4, content: '暗夜如墨，你是我唯一的银辉。横看是温柔，侧看成永恒。庐山烟雨朦胧，不如你眉间月色。', author: '夜行客', likes: 156, userId: '5' },
-  { id: 5, content: '此身已在情山中，远近高低皆是你的一颦一笑。星沉海底，云过山巅，唯你如心间长明灯。', author: '西林旧客', likes: 203, userId: '6' },
-  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: '7' },
-  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: '8' },
-  { id: 6, content: '不识庐山真面目，只缘身在此山中。深夜读诗，行行是你；抬头望月，月月是你。', author: '庐岳晚钟', likes: 312, userId: '9' }
-])
+const dataLoaded = ref(false);
+const dataList = ref<Array<Wall>>([])
 
-function likeMessage(id: number) {
-  const item = waterfallList.value.find(i => i.id === id)
-  if (item) item.likes += 1
+const keyword = ref<FKeyWordType>()
+const sortType = ref<FSortType>()
+const page = ref<FPageType>()
+
+const totalPages = ref(0)
+
+async function selectCategory(newCategoryId: FCategoryIdType) {
+  if (CategoryId.value === newCategoryId) CategoryId.value = undefined
+  else CategoryId.value = newCategoryId
+  await refreshWalls()
 }
+
+async function goPrevPage() {
+  if (page.value && page.value > 1) {
+    page.value--
+    await refreshWalls()
+  }
+}
+async function goNextPage() {
+  if (page.value && page.value < totalPages.value) {
+    page.value++
+    await refreshWalls()
+  }
+}
+async function goToPage(_page: number) {
+  if (_page >= 1 && _page <= totalPages.value) {
+    page.value = _page
+    await refreshWalls()
+  }
+}
+async function changeSort(type: FSortType) {
+  if (sortType.value === type) sortType.value = undefined
+  else sortType.value = type
+  page.value = 1
+  await refreshWalls()
+}
+
+async function refreshWalls() {
+  const result = await api.getWalls(CategoryId.value, keyword.value, sortType.value, page.value)
+  dataLoaded.value = result.success
+  if (!result.success) {
+    UIUtils.info(result.message)
+    return
+  }
+  totalPages.value = result.totalPages as number
+  dataList.value = result.posts as Wall[]
+}
+
+const visiblePages = computed(() => {
+  if (!page.value) return [1, 2, 3, 4, 5]
+  const total = totalPages.value
+  let start = Math.max(1, page.value - 2)
+  let end = Math.min(total, start + 5)
+  if (end - start < 5) start = Math.max(1, end - 5)
+  const pages = []
+  for (let i = start; i <= end; i++) pages.push(i)
+  return pages
+})
+
+onMounted(async () => {
+  await refreshCategories()
+  if (CategoryState.value) {
+    await refreshWalls()
+  }
+})
 </script>
 
 <template>
@@ -31,11 +89,58 @@ function likeMessage(id: number) {
         <ProfileCard/>
       </div>
       <div class="right-panel">
+        <!--分类栏-->
+        <div class="card" v-if="dataLoaded">
+          <div class="title-bar">
+            <h2>山中专栏</h2>
+            <p>寻墨问山</p>
+          </div>
+          <div class="category-scroll">
+            <OptionSelect
+                v-for="cat of Categories"
+                :key="cat.id"
+                :title="cat.name"
+                :subtitle="cat.description || catDefault.description"
+                :selected="cat.id === CategoryId"
+                @click="selectCategory(cat.id)"
+            />
+          </div>
+        </div>
+
+        <!--工具栏: 分页 | 排序方式-->
+        <div class="toolbar" v-if="dataList.length > 0">
+          <div class="pagination-left" v-if="page">
+            <button class="page-btn" @click="goPrevPage" :disabled="page <= 1">上一页</button>
+            <button
+                v-for="page in visiblePages"
+                :key="page"
+                class="page-num"
+                :class="{ active: page === page }"
+                :disabled="page === 0 || totalPages === 0"
+                @click="goToPage(page)"
+            >{{ page }}</button>
+            <button class="page-btn" @click="goNextPage" :disabled="page >= totalPages">下一页</button>
+          </div>
+          <div class="sort-right">
+            <button
+                class="sort-btn"
+                :class="{ active: sortType === 'latest' }"
+                @click="changeSort('latest')"
+            >最新</button>
+            <button
+                class="sort-btn"
+                :class="{ active: sortType === 'popular' }"
+                @click="changeSort('popular')"
+            >最多浏览</button>
+          </div>
+        </div>
+        <div class="title-text" v-else-if="dataLoaded">此处空空如也~</div>
+
         <Waterfall
             style="width: 100%; background-color: transparent"
             :width="400"
             :animationDelay="0"
-            :list="waterfallList"
+            :list="dataList"
             :gutter="16"
             :has-around-gutter="false"
             :breakpoints="{
@@ -46,10 +151,10 @@ function likeMessage(id: number) {
         >
           <template #default="{ item }">
             <div class="message-card">
-              <div class="message-content">{{ item.content }}</div>
+              <div class="message-content">{{ item.trimmedContent }}</div>
               <div class="card-footer">
-                <span class="author-name" @click="goToUserProfile(item.userId)">记于 {{ item.author }}</span>
-                <button class="like-btn" @click="likeMessage(item.id)">心许 {{ item.likes }}</button>
+                <span class="author-name" @click="">记于 {{ item.authorName }}</span>
+                <button class="like-btn" @click="">心许 {{ item.likes }}</button>
               </div>
             </div>
           </template>
@@ -61,6 +166,79 @@ function likeMessage(id: number) {
 
 <style scoped>
 @import "../style/page_left_right.css";
+@import "../style/profile_card_common.css";
+.category-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--code-bg);
+}
+.category-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.category-scroll::-webkit-scrollbar-track {
+  background: var(--code-bg);
+  border-radius: 4px;
+}
+.category-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.pagination-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.sort-right {
+  display: flex;
+  gap: 12px;
+  justify-content: end;
+}
+
+.page-btn, .page-num, .sort-btn {
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-radius: 30px;
+  padding: 6px 14px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.page-btn:hover:not(:disabled),
+.page-num:hover,
+.sort-btn:hover {
+  background: var(--button-hover-bg);
+  border-color: var(--button-hover-border);
+  color: var(--text-h);
+}
+.page-num.active,
+.sort-btn.active {
+  background: var(--button-hover-bg);
+  border-color: var(--text-h);
+  color: var(--text-h);
+  font-weight: bold;
+}
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
 .message-card {
   background-color: var(--bg);
   border: 1px solid var(--border);
