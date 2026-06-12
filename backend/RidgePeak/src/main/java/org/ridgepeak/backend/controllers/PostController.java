@@ -54,10 +54,17 @@ public class PostController {
         return Result.ok(postId);
     }
 
-    @PostMapping("/{postId}/like")
-    public Result<?> like(HttpServletRequest request, @PathVariable Long postId) {
+    @GetMapping("/{postId}/like")
+    public Result<Boolean> like(HttpServletRequest request, @PathVariable Long postId) {
         Long userId = (Long) request.getAttribute("userId");
-        boolean liked = postService.toggleLike(postId, userId);
+        boolean liked = postService.isLike(postId, userId);
         return Result.ok(liked);
+    }
+
+    @PostMapping("/{postId}/like")
+    public Result<?> like(HttpServletRequest request, @PathVariable Long postId, @RequestParam boolean value) {
+        Long userId = (Long) request.getAttribute("userId");
+        postService.like(postId, userId, value);
+        return Result.ok();
     }
 }
