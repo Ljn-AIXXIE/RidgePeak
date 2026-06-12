@@ -11,44 +11,45 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <div class="category-card" :class="{ active: props.selected }">
+  <div class="option-card" :class="{ active: props.selected }">
     <template v-if="!onlySelfDesign">
-      <div class="category-name">{{ props.title }}</div>
-      <div class="category-desc">{{ props.subtitle }}</div>
+      <div class="option-name">{{ props.title }}</div>
+      <div class="option-desc">{{ props.subtitle }}</div>
     </template>
     <slot/>
   </div>
 </template>
 
 <style scoped>
-.category-card {
+.option-card {
   flex: 0 0 auto;
-  width: 160px;
+  min-width: 60px;
+  max-width: 80%;
   background: var(--code-bg);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 12px 14px;
-  margin-top: 8px;
+  border-radius: 16px;
+  padding: 8px 12px;
+  margin-top: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.category-card:hover {
+.option-card:hover {
   background: var(--button-hover-bg);
   border-color: var(--button-hover-border);
   transform: translateY(-2px);
 }
-.category-card.active {
+.option-card.active {
   background: var(--button-hover-bg);
   border-color: var(--button-hover-border);
 }
-.category-name {
+.option-name {
   font-size: 15px;
   font-weight: 600;
   color: var(--text-h);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   letter-spacing: 1px;
 }
-.category-desc {
+.option-desc {
   font-size: 12px;
   color: var(--text);
   line-height: 1.3;

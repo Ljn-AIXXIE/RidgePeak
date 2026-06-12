@@ -6,22 +6,23 @@ export type FCategoryIdType = number | undefined
 export type FPageType = number | undefined
 export type FKeyWordType = string | undefined
 
-export interface Wall {
+export interface Post {
     postId: number,
     title: string,
     trimmedContent: string,
     categoryName: string,
     authorName: string,
     viewCount: number,
-    createCount: number,
+    createdAt: number,
 }
 
-export interface WallDetail {
+export interface PostDetail {
     title: string,
     content: string,
     viewCount: number,
+    likeCount: number,
     category: Category,
     author: AuthProfile,
-    createAt: string,
-    updateAt: string,
+    createdAt: string,
+    updatedAt: string,
 }

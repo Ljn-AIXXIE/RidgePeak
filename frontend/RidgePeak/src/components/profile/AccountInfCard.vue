@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import {computed, ref} from 'vue'
 import UIUtils from '../../utils/UIUtils'
 import api from "../../api";
+import {AuthState, UserId} from "../../stores/auth.ts";
+import {useRoute} from "vue-router";
+
+const route = useRoute()
+const isSelf = computed(() => AuthState.value && Number(route.params.userId) == UserId.value)
 
 const oldPassword = ref('')
 const newPassword = ref('')
@@ -39,15 +44,15 @@ function handleCancel() {
 </script>
 
 <template>
-  <div class="card">
+  <div class="card" v-if="isSelf">
 
-    <div class="title-bar title-text">
+    <div class="title-bar title-text with-between-line">
       <h2>账号设置</h2>
       <button class="cancel-btn" @click="handleCancel">清空</button>
       <button class="submit-btn" @click="handleSave">保存修改</button>
     </div>
 
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">旧密码</span>
       <form>
         <input
@@ -60,7 +65,7 @@ function handleCancel() {
       </form>
     </div>
 
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">新密码</span>
       <form>
         <input
@@ -73,7 +78,7 @@ function handleCancel() {
       </form>
     </div>
 
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">确认新密码</span>
       <form>
         <input

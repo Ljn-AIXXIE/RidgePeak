@@ -8,6 +8,7 @@ import {clearUserInfo, refreshUserInfo, useAuthStore} from "./stores/auth.ts";
 import api from "./api";
 import Cookie, {Token} from "./stores/cookie.ts";
 import UIUtils from "./utils/UIUtils.ts";
+import {refreshCategories, useCategoryStore} from "./stores/category.ts";
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -38,6 +39,10 @@ else if (token !== "") {
         router.push("/login");
     }
 }
+
+const categoryStore = useCategoryStore()
+const categoryFlag = await refreshCategories()
+categoryStore.setCategoryState(categoryFlag.success)
 
 app.config.errorHandler = (err) => {
     console.log(err)

@@ -1,17 +1,31 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import {computed, onMounted, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import {
-  AuthState, UserId, UserName, NickName, AvatarUrl, Email, Role, CreatedAt, UpdateAt, LastLoginTime, type AuthProfile,
-  Stars, Walls, Followers, Default
+  type AuthProfile,
+  AuthState,
+  AvatarUrl,
+  CreatedAt,
+  Default,
+  Email,
+  Followers,
+  LastLoginTime,
+  NickName,
+  Role,
+  Stars,
+  UpdateAt,
+  UserId,
+  UserName,
+  Walls
 } from '../../stores/auth.ts'
 import api from "../../api";
-import { goHome } from "../../route/router.ts";
+import {goHome} from "../../route/router.ts";
 import UIUtils from "../../utils/UIUtils.ts";
+import Avatar from "./Avatar.vue";
 
 const route = useRoute()
+const isSelf = computed(() => AuthState.value && Number(route.params.userId) == UserId.value)
 
-const isSelf = computed(() => AuthState.value && route.params.userId == UserId.value)
 const profile = ref<AuthProfile>()
 const originalProfile = ref<AuthProfile>()
 
@@ -26,8 +40,8 @@ async function getCurrentUserData() {
     profile.value = {
       role: Role.value,
       userId: UserId.value,
-      userName: UserName.value,
-      nickName: NickName.value,
+      username: UserName.value,
+      nickname: NickName.value,
       avatarUrl: AvatarUrl.value,
       stars: Stars.value,
       walls: Walls.value,
@@ -46,8 +60,8 @@ async function getCurrentUserData() {
     profile.value = {
       role: result.role,
       userId: result.userId,
-      userName: result.userName,
-      nickName: result.nickName,
+      username: result.username,
+      nickname: result.nickname,
       avatarUrl: result.avatarUrl,
       stars: result.stars,
       walls: result.walls,
@@ -83,11 +97,11 @@ function triggerAvatarUpload() {
     const file = (e.target as HTMLInputElement).files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      alert('请选择图片文件')
+      UIUtils.info('请选择图片文件')
       return
     }
     if (file.size > 2 * 1024 * 1024) {
-      alert('图片大小不能超过2MB')
+      UIUtils.info('图片大小不能超过2MB')
       return
     }
     newAvatarFile.value = file
@@ -116,7 +130,7 @@ async function saveChanges() {
     }
   }
   let nicknameChanged = false
-  if (editNickname.value !== profile.value?.nickName) {
+  if (editNickname.value !== profile.value?.nickname) {
     const result = await api.putMe(editNickname.value)
     if (result.success) {
       nicknameChanged = true
@@ -129,7 +143,7 @@ async function saveChanges() {
 
   if (profile.value) {
     if (newAvatarUrl) profile.value.avatarUrl = newAvatarUrl
-    if (nicknameChanged) profile.value.nickName = editNickname.value
+    if (nicknameChanged) profile.value.nickname = editNickname.value
   }
 
   newAvatarFile.value = null
@@ -141,8 +155,8 @@ async function saveChanges() {
 
 <template>
   <div class="card">
-    <div class="title-bar title-text">
-      <h2>个人资料</h2>
+    <div class="title-bar title-text with-between-line">
+      <h2>{{ isSelf ? '个人资料' : '"' + (profile?.nickname || Default.NickName) + '"的资料' }}</h2>
       <template v-if="isSelf">
         <button v-if="!isEditing" class="common-btn" @click="enterEditMode">修改</button>
         <template v-else>
@@ -152,58 +166,64 @@ async function saveChanges() {
       </template>
     </div>
 
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">头像</span>
-      <div>
+      <div class="avatar-func">
         <div class="avatar-item">
           <div class="avatar-label" v-if="isEditing">当前</div>
-          <img v-if="profile?.avatarUrl" :src="profile.avatarUrl" class="profile-avatar" alt="avatar">
-          <div v-else class="profile-avatar placeholder">{{ (profile?.nickName || Default.NickName).charAt(0) }}</div>
+          <Avatar
+              :size="80"
+              :url="profile?.avatarUrl"
+              :text="(profile?.nickname || Default.NickName).charAt(0)"
+          />
         </div>
         <div class="avatar-item" v-if="isEditing">
           <div class="avatar-label">新头像</div>
           <div class="profile-avatar upload-area" @click="triggerAvatarUpload">
-            <img v-if="newAvatarPreview" :src="newAvatarPreview" class="profile-avatar" alt="new avatar">
-            <div v-else class="placeholder-icon">+</div>
+            <Avatar
+                :size="80"
+                :url="newAvatarPreview"
+                :text="'+'"
+            />
           </div>
           <div class="upload-hint">点击上传</div>
         </div>
       </div>
     </div>
 
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">身份</span>
       <span>{{ profile?.role }}</span>
     </div>
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">用户ID</span>
       <span>{{ profile?.userId }}</span>
     </div>
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">用户名</span>
-      <span>{{ profile?.userName }}</span>
+      <span>{{ profile?.username }}</span>
     </div>
-    <div class="info-row">
+    <div class="info-row with-between-line">
       <span class="info-label">雅号</span>
-      <span v-if="!isEditing">{{ profile?.nickName || Default.NickName }}</span>
+      <span v-if="!isEditing">{{ profile?.nickname || Default.NickName }}</span>
       <input v-else v-model="editNickname" class="info-input" type="text" placeholder="新雅号">
     </div>
     <template v-if="isSelf">
-      <div class="info-row">
+      <div class="info-row with-between-line">
         <span class="info-label">电子邮箱</span>
         <span>{{ profile?.email || '未绑定' }}</span>
       </div>
-      <div class="info-row">
+      <div class="info-row with-between-line">
         <span class="info-label">注册时间</span>
-        <span>{{ profile?.createdAt }}</span>
+        <span>{{ new Date(profile?.createdAt as string).toLocaleString() }}</span>
       </div>
-      <div class="info-row">
+      <div class="info-row with-between-line">
         <span class="info-label">资料更新</span>
-        <span>{{ profile?.updatedAt }}</span>
+        <span>{{ new Date(profile?.updatedAt as string).toLocaleString() }}</span>
       </div>
-      <div class="info-row">
+      <div class="info-row with-between-line">
         <span class="info-label">上次登临</span>
-        <span>{{ profile?.lastLoginTime || '未知' }}</span>
+        <span>{{ new Date(profile?.lastLoginTime as string).toLocaleString() }}</span>
       </div>
     </template>
   </div>
@@ -211,9 +231,14 @@ async function saveChanges() {
 
 <style scoped>
 @import "../../style/profile_card_common.css";
-
+.avatar-func {
+  align-items: start !important;
+}
 .avatar-item {
-  text-align: center;
+  flex-direction: column !important;
+  text-align: center !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
 .avatar-label {
   font-size: 12px;
@@ -229,9 +254,9 @@ async function saveChanges() {
 }
 .profile-avatar.placeholder {
   background: var(--code-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
   font-size: 32px;
   font-weight: bold;
   color: var(--text);
@@ -239,18 +264,6 @@ async function saveChanges() {
 .upload-area {
   cursor: pointer;
   position: relative;
-}
-.placeholder-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: var(--code-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  color: var(--text);
-  border: 1px solid var(--border);
 }
 .upload-hint {
   font-size: 11px;

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +116,7 @@ public class PostService {
         post.setCategory(category);
         post.setTitle(request.title());
         post.setContent(request.content());
+        post.setUpdatedAt(LocalDateTime.now());
         postRepository.save(post);
 
         return post.getId();
@@ -135,6 +137,7 @@ public class PostService {
         post.setTitle(request.title());
         post.setContent(request.content());
         post.setCategory(category);
+        post.setUpdatedAt(LocalDateTime.now());
         postRepository.save(post);
     }
 

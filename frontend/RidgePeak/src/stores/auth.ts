@@ -4,9 +4,9 @@ import api from "../api";
 
 export interface AuthProfile {
     role: string
-    userId: string
-    userName: string
-    nickName: string
+    userId: number
+    username: string
+    nickname: string
     avatarUrl: string
 
     stars: number
@@ -22,7 +22,7 @@ export interface AuthProfile {
 export const AuthState = ref(false)
 
 export const Role = ref("")
-export const UserId = ref("")
+export const UserId = ref(-1)
 
 export const UserName = ref("")
 export const Email = ref("")
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore("authStore", {
 
 export function clearUserInfo() {
     Role.value = ""
-    UserId.value = ""
+    UserId.value = -1
 
     UserName.value = ""
     Email.value = ""
@@ -97,9 +97,9 @@ export async function refreshUserInfo() {
     Introduction.value = result.introduction || Default.Introduction
     AvatarUrl.value = result.avatarUrl || ''
 
-    CreatedAt.value = new Date(result.createdAt).toLocaleString()
-    UpdateAt.value = new Date(result.updatedAt).toLocaleString()
-    LastLoginTime.value = new Date(result.lastLoginTime).toLocaleString()
+    CreatedAt.value = result.createdAt
+    UpdateAt.value = result.updatedAt
+    LastLoginTime.value = result.lastLoginTime
 
     return {
         success: true,

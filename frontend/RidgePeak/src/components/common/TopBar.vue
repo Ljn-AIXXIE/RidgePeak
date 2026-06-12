@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import {AuthState, AvatarUrl, Default, NickName} from "../../stores/auth.ts";
-import {goHome, goLogin, goToProfile} from "../../route/router.ts";
+import {AuthState, AvatarUrl, Default, NickName, UserId} from "../../stores/auth.ts";
+import {goHome, goLogin, goPostCreate, goUserProfile} from "../../route/router.ts";
 import api from "../../api";
 import {ref} from "vue";
-import {app} from "../../stores/defaultValue.ts";
+import {app, DText} from "../../stores/defaultValue.ts";
+import Avatar from "../profile/Avatar.vue";
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   title?: string
 }>(), {
   title: app
@@ -21,21 +22,23 @@ const isHover = ref(false)
 
 <template>
   <div class="top-bar">
-    <div class="title" @click="goHome">{{props.title}}</div>
+    <div class="title" @click="goHome">{{title}}</div>
     <div class="auth-area">
       <template v-if="AuthState">
         <div class="user-info" @mouseenter="isHover = true" @mouseleave="isHover = false">
           <transition name="slide">
             <span v-show="isHover" class="nickname">{{ NickName || Default.NickName }}</span>
           </transition>
-          <div class="avatar-wrapper">
-            <img v-if="AvatarUrl" :src="AvatarUrl" class="avatar-small" alt="avatar">
-            <div v-else class="avatar-small placeholder">{{ (NickName || Default.NickName).charAt(0) }}</div>
-          </div>
+
+          <Avatar
+              :size="40"
+              :url="AvatarUrl"
+              :text="(NickName || Default.NickName).charAt(0)"
+          />
 
           <div class="menu-card">
-            <div class="menu-item" @click="goToProfile">个人主页</div>
-            <div class="menu-item" @click="goToProfile">账号设置</div>
+            <div class="menu-item" @click="goUserProfile(UserId)">{{ DText.USER_INFO }}</div>
+            <div class="menu-item" @click="goPostCreate">{{ DText.USER_POST }}</div>
             <div class="menu-divider"></div>
             <div class="menu-item exit" @click.stop="logout">出境</div>
           </div>

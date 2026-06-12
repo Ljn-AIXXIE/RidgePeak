@@ -21,7 +21,7 @@ public class TokenAuthHandler implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         var uri = request.getRequestURI();
         if ("GET".equalsIgnoreCase(request.getMethod()) && (
-                uri.startsWith("/api/post") ||
+                (uri.startsWith("/api/post") && (!uri.contains("/like"))) ||
                 uri.startsWith("/api/comment") ||
                 uri.startsWith("/api/category")))
             return true;

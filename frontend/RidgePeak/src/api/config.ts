@@ -3,6 +3,7 @@ export default {
     profile: "/api/profile",
     category: "/api/category",
     post: "/api/post",
+    comment: "/api/comment",
 
     serverHost: "http://localhost:8080"
 }

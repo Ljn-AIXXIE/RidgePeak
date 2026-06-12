@@ -3,8 +3,9 @@ import url from "./config.ts"
 import axios from "axios"
 import cookie from "../stores/cookie.ts";
 import {type Category} from "../stores/category.ts";
-import type {FCategoryIdType, FKeyWordType, FPageType, Wall, WallDetail} from "../stores/wall.ts";
-import type {FSortType} from "../stores/wall.ts";
+import type {FCategoryIdType, FKeyWordType, FPageType, Post, PostDetail} from "../stores/post.ts";
+import type {FSortType} from "../stores/post.ts";
+import type {Comment} from "../stores/comment.ts";
 
 export default {
     /**
@@ -142,8 +143,6 @@ export default {
                 success: false,
                 message: response.data.message as string
             }
-
-            response.data.data.avatarUrl = response.data.data.avatarUrl && url.serverHost + response.data.data.avatarUrl
 
             return {
                 success: true,
@@ -418,7 +417,7 @@ export default {
             return {
                 success: true,
                 message: "获取信息成功",
-                posts: response.data.data.posts as Array<Wall>,
+                posts: response.data.data.posts as Post[],
                 postCount: response.data.data.postCount as number,
                 currentPage: response.data.data.currentPage as number,
                 totalPages: response.data.data.totalPages as number
@@ -447,7 +446,7 @@ export default {
             return {
                 success: true,
                 message: "获取信息成功",
-                data: response.data.data as WallDetail,
+                data: response.data.data as PostDetail,
             };
         } catch (err: any) {
             console.log(err);
@@ -464,7 +463,7 @@ export default {
     async createWall(categoryId: number, title: string, content: string) {
         try {
             const response = await axios.post(`${url.post}/create`, {
-                category: categoryId,
+                categoryId: categoryId,
                 title: title,
                 content: content
             }, {
@@ -549,11 +548,11 @@ export default {
     },
 
     /**
-     * post /post/{postId}/like
+     * get /post/{postId}/like
      */
-    async likeWall(postId: number) {
+    async getLikedWall(postId: number) {
         try {
-            const response = await axios.delete(`${url.post}/${postId}/like`, {
+            const response = await axios.get(`${url.post}/${postId}/like`, {
                 headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
             })
 
@@ -566,6 +565,121 @@ export default {
                 success: true,
                 message: "获取信息成功",
                 like: response.data.data as boolean
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * post /post/{postId}/like
+     */
+    async likeWall(postId: number, like: boolean) {
+        try {
+            const response = await axios.post(`${url.post}/${postId}/like`, undefined, {
+                params: { value: like },
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * get /comment?postId={postId}
+     */
+    async getWallComment(postId: number) {
+        try {
+            const response = await axios.get(`${url.comment}`, {
+                params: { postId: postId }
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                data: response.data.data as Comment[]
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * post /comment/create
+     */
+    async createWallComment(postId: number, content: string, parentId?: number) {
+        try {
+            const response = await axios.post(`${url.comment}/create`, {
+                postId: postId,
+                content: content,
+                parentId: parentId,
+            }, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
+                commentId: response.data.data as number
+            };
+        } catch (err: any) {
+            console.log(err);
+            return {
+                success: false,
+                message: "获取信息失败，" + err.message
+            }
+        }
+    },
+
+    /**
+     * delete /comment/{commentId}
+     */
+    async deleteWallComment(commentId: number) {
+        try {
+            const response = await axios.delete(`${url.comment}/${commentId}`, {
+                headers: { Authorization: "Bearer " + cookie.getCookie(Token) },
+            })
+
+            if (response.status !== 200) return {
+                success: false,
+                message: response.data.message
+            }
+
+            return {
+                success: true,
+                message: "获取信息成功",
             };
         } catch (err: any) {
             console.log(err);

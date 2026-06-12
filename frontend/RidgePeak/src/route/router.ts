@@ -3,8 +3,10 @@ import LoginPage from "../components/LoginPage.vue"
 import RegisterPage from "../components/RegisterPage.vue"
 import HomePage from "../components/HomePage.vue";
 import ProfilePage from "../components/ProfilePage.vue";
-import {AuthState, UserId} from "../stores/auth.ts";
 import AdminPage from "../components/AdminPage.vue";
+import PostCreatePage from "../components/PostCreatePage.vue";
+import PostDetailPage from "../components/PostDetailPage.vue";
+import PostEditPage from "../components/PostEditPage.vue";
 
 const routes = [
     {
@@ -35,6 +37,21 @@ const routes = [
         path: '/admin',
         name: 'Admin',
         component: AdminPage,
+    },
+    {
+        path: '/post/create',
+        name: 'PostCreate',
+        component: PostCreatePage,
+    },
+    {
+        path: '/post/edit/:postId(\\d+)',
+        name: 'PostEdit',
+        component: PostEditPage,
+    },
+    {
+        path: '/post/:postId(\\d+)',
+        name: 'PostDetail',
+        component: PostDetailPage,
     }
 ]
 
@@ -45,11 +62,7 @@ const router = createRouter({
 
 export default router
 
-export function goToProfile() {
-    if (AuthState.value) router.push(`/profile/${UserId.value}`)
-    else router.push('/login')
-}
-export function goToUserProfile(userId: string) {
+export function goUserProfile(userId: number) {
     router.push(`/profile/${userId}`)
 }
 export function goHome() {
@@ -63,6 +76,15 @@ export function goRegister() {
 }
 export function goAdmin() {
     router.push('/admin')
+}
+export function goPostCreate() {
+    router.push('/post/create')
+}
+export function goPostEdit(postId: number) {
+    router.push(`/post/edit/${postId}`)
+}
+export function goPostDetail(postId: number) {
+    router.push(`/post/${postId}`)
 }
 export function goBack() {
     router.back()

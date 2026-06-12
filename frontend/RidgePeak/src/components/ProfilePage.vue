@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TopBar from "./common/TopBar.vue";
-import { app, userInf } from "../stores/defaultValue.ts";
+import {DText} from "../stores/defaultValue.ts";
 import ProfileCard from "./common/ProfileCard.vue";
 import SelfInfCard from "./profile/SelfInfCard.vue";
 import AccountInfCard from "./profile/AccountInfCard.vue";
@@ -8,7 +8,7 @@ import AccountInfCard from "./profile/AccountInfCard.vue";
 
 <template>
   <div class="app-container">
-    <TopBar :title="app+'·'+userInf"/>
+    <TopBar :title="DText.APP+'·'+DText.USER_INFO"/>
 
     <div class="main-layout">
       <div class="left-panel">

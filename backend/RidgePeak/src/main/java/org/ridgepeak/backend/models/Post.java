@@ -37,10 +37,10 @@ public class Post {
         this.createdAt = LocalDateTime.now();
     }
 
-    @PreUpdate
-    void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+//    @PreUpdate
+//    void onUpdate() {
+//        this.updatedAt = LocalDateTime.now();
+//    }
 
     public Long getId() {
         return id;
@@ -92,5 +92,9 @@ public class Post {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

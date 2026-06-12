@@ -18,20 +18,31 @@
     gap: 32px;
     flex-wrap: wrap;
     width: 100%;
+
+    justify-content: center;
 }
 
 .left-panel {
-    flex: 1;
-    height: 100%;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 28px;
+
+    position: sticky;
+    top: 24px;
+    align-self: flex-start;
 }
+@media (max-width: 636px) {
+    .left-panel {
+        position: static;
+        top: 0;
+        align-self: start   ;
+    }
+}
+
 .right-panel {
-    flex: 3;
+    flex: 1;
     min-width: 280px;
     height: 100%;
 

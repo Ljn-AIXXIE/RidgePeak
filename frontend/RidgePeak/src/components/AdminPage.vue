@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import {adminSettings, app} from '../stores/defaultValue.ts'
+import {DText} from '../stores/defaultValue.ts'
 import {AuthState, Role} from "../stores/auth.ts";
 import api from "../api";
 import TopBar from "./common/TopBar.vue";
@@ -21,6 +21,10 @@ const showDetailModal = ref(false)
 const currentDetail = ref<any>(null)
 
 async function createCategoryHandler() {
+  if (!isAdmin.value) {
+    UIUtils.info('无权')
+    return
+  }
   if (!newCategory.value.name.trim()) {
     UIUtils.info('请填写专栏名号')
     return
@@ -38,6 +42,10 @@ async function createCategoryHandler() {
 }
 
 async function confirmDelete(id: number, name: string) {
+  if (!isAdmin.value) {
+    UIUtils.info('无权')
+    return
+  }
   if (confirm(`是否确定削除专栏「${name}」？此操作不可逆。`)) {
     const res = await api.deleteCategory(id)
     if (res.success) {
@@ -71,12 +79,12 @@ function closeDetailModal() {
   currentDetail.value = null
 }
 
-onMounted(() => isAdmin.value && refreshCategories())
+onMounted(() => refreshCategories())
 </script>
 
 <template>
   <div class="app-container">
-    <TopBar :title="app + '·' + adminSettings" />
+    <TopBar :title="DText.APP + '·' + DText.ADMIN_SETTINGS" />
 
     <div class="main-layout">
       <div class="left-panel">
@@ -85,22 +93,22 @@ onMounted(() => isAdmin.value && refreshCategories())
 
       <div class="right-panel">
         <div v-if="!isAdmin" class="card">
-          <div class="title-bar title-text">远处声响</div>
-          <div class="info-row info-label">君非执钥之人，此境惟翰苑主可入也。</div>
+          <div class="title-bar title-text with-between-line">远处声响</div>
+          <div class="with-between-line">君非执钥之人，此境惟翰苑主可入也。</div>
         </div>
         <div v-else class="card">
-          <div class="title-bar">
-            <h2 class="title-text">翰苑·专栏辑录</h2>
+          <div class="title-bar with-between-line">
+            <h2>翰苑·专栏辑录</h2>
             <div class="common-btn" @click="openCreateModal">开卷新编</div>
           </div>
 
-          <div class="info-row info-label" v-if="Categories.length === 0">翰苑寂寥，尚未有专栏，请执笔开卷～</div>
+          <div class="info-row with-between-line" v-if="Categories.length === 0">翰苑寂寥，尚未有专栏，请执笔开卷～</div>
           <template v-else>
             <div class="category-list" v-if="!loading">
               <div
                   v-for="cat in Categories"
                   :key="cat.id"
-                  class="category-card"
+                  class="select-card"
               >
                 <div class="card-header">
                   <h3 class="category-name">{{ cat.name }}</h3>
@@ -112,14 +120,14 @@ onMounted(() => isAdmin.value && refreshCategories())
                 <p class="category-desc">{{ cat.description || catDefault.description }}</p>
               </div>
             </div>
-            <div class="info-row info-label" v-else>卷轴舒展中...</div>
+            <div class="info-row with-between-line" v-else>卷轴舒展中...</div>
           </template>
 
         </div>
       </div>
     </div>
 
-    <Modal :out-close="false" :show="showDetailModal">
+    <Modal :out-close="false" :show="showCreateModal">
       <div class="card" style="width: 480px; border-radius: 32px">
         <div class="title-bar">
           <h2>创立新专栏</h2>
@@ -144,25 +152,25 @@ onMounted(() => isAdmin.value && refreshCategories())
 
     <Modal :show="showDetailModal">
       <div class="card" style="width: 480px; border-radius: 32px">
-        <div class="title-bar">
+        <div class="title-bar with-between-line">
           <h2>《{{ currentDetail?.name || '专栏' }}》 卷宗</h2>
           <div class="cancel-btn" @click="closeDetailModal">✖</div>
         </div>
         <template v-if="currentDetail">
-          <div class="info-row">
+          <div class="info-row with-between-line">
             <span class="info-label">名号</span>
             <span class="info-value">{{ currentDetail.name }}</span>
           </div>
-          <div class="info-row">
+          <div class="info-row with-between-line">
             <span class="info-label">题解</span>
             <span class="info-value">{{ currentDetail.description || '无' }}</span>
           </div>
-          <div class="info-row" v-if="currentDetail.id">
+          <div class="info-row with-between-line" v-if="currentDetail.id">
             <span class="info-label">翰苑编号</span>
             <span class="info-value">{{ currentDetail.id }}</span>
           </div>
         </template>
-        <div class="action-bar">
+        <div class="action-bar with-between-line">
           <div class="common-btn" @click="closeDetailModal">阖卷</div>
         </div>
       </div>
@@ -180,7 +188,7 @@ onMounted(() => isAdmin.value && refreshCategories())
   gap: 20px;
 }
 
-.category-card {
+.select-card {
   background: var(--bg-h);
   border: 1px solid var(--border);
   border-radius: 28px;
@@ -189,7 +197,7 @@ onMounted(() => isAdmin.value && refreshCategories())
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02);
 }
 
-.category-card:hover {
+.select-card:hover {
   box-shadow: var(--shadow);
   border-color: var(--button-hover-border);
 }
@@ -217,16 +225,5 @@ onMounted(() => isAdmin.value && refreshCategories())
   line-height: 1.5;
   margin: 8px 0 6px 0;
   font-style: italic;
-}
-
-@media (max-width: 760px) {
-  .right-panel {
-    padding: 16px;
-  }
-  .card-header {
-    flex-direction: column;
-    align-items: start;
-    gap: 8px;
-  }
 }
 </style>
